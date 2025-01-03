@@ -1,0 +1,29 @@
+.navbutton {
+    background: linear-gradient(-45deg, #FF3D77, #338AFF, #00008B);
+    background-size: 600%;
+    animation: anime 6s linear infinite;
+    font-weight: 500;
+    font-size: 14px; /* Increased for better visibility */
+    padding: 10px 30px; /* Adjusted padding */
+    border-radius: 4px;
+    border: none;
+    transition: 0.5s;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Ensures text is perfectly centered */
+    text-decoration: none;
+  }
+  
+  .navbutton:hover {
+    color: white !important;
+    text-decoration: none;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
+  
+  @keyframes anime {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
