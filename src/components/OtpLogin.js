@@ -50,6 +50,7 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
               type="tel"
               placeholder="Enter your mobile number"
               value={mobileNumber}
+              maxLength={10}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
                 setMobileNumber(value);
@@ -95,6 +96,7 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
             >
               Verify & Login
             </button>
+            <p className="mt-3 font-semibold"> Enter OTP as 1234</p>
           </>
         )}
 

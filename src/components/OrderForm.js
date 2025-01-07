@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import carimage from "../assets/header/bg2.jpg";
 import "./common.css";
 import { useNavigate } from "react-router-dom";
@@ -287,6 +287,26 @@ const navigate = useNavigate()
     link.click();
   };
 
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  // Set the current time as the default value
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, timing: getCurrentTime() }));
+  }, []);
+
+
+  const formatDate = (date) => {
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return new Date(date).toLocaleDateString("en-US", options);
+  };
+
+
   return (
     <>
       <div className="flex gap-6 p-6">
@@ -339,23 +359,23 @@ const navigate = useNavigate()
   </div>
 
   {/* Time */}
-<div>
-  <label className="block text-gray-700 font-medium mb-1" htmlFor="timing">
-    Journey Time
-  </label>
-  <input
-    type="time"
-    id="timing"
-    name="timing"
-    value={formData.timing}
-    onChange={handleChange}
-    required
-    placeholder="hh:mm"
-    className={`py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition ${
-      !formData.timing ? 'placeholder-gray-400' : ''
-    }`}
-  />
-</div>
+  <div>
+      <label className="block text-gray-700 font-medium mb-1" htmlFor="timing">
+        Journey Time
+      </label>
+      <input
+        type="time"
+        id="timing"
+        name="timing"
+        value={formData.timing}
+        onChange={handleChange}
+        required
+        placeholder="hh:mm"
+        className={`py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition ${
+          !formData.timing ? "placeholder-gray-400" : ""
+        }`}
+      />
+    </div>
 
 
   {/* Hours */}
@@ -546,7 +566,7 @@ const navigate = useNavigate()
         <div className="flex justify-between border-b pb-2">
           <span className="text-lg font-medium text-gray-500">Date:</span>
           <span className="text-lg font-semibold text-gray-800">
-            {formData.date}
+          {formatDate(formData.date)}
           </span>
         </div>
         <div className="flex justify-between border-b pb-2">
