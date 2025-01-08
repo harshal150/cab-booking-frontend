@@ -1,5 +1,11 @@
-import React, { useState , useRef } from "react";
-import { FaCarAlt, FaUserAlt, FaClock, FaCalendarAlt,FaMoneyBillAlt } from "react-icons/fa";
+import React, { useState, useRef } from "react";
+import {
+  FaCarAlt,
+  FaUserAlt,
+  FaClock,
+  FaCalendarAlt,
+  FaMoneyBillAlt,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 const PassengersDetails = () => {
   const [activeTab, setActiveTab] = useState("myRides");
@@ -53,14 +59,14 @@ const PassengersDetails = () => {
       alert("End reading must be greater than start reading!");
       return;
     }
-  
+
     const distance = parseInt(endReading[id]) - parseInt(startReading[id]);
     const fare = distance * rate;
-  
+
     setTotalFare((prev) => ({ ...prev, [id]: fare })); // Store total fare
     setRideStatus((prev) => ({ ...prev, [id]: "endReadingDone" })); // Mark end reading done
   };
-  
+
   // OTP submission for ending the ride
   const handleOtpSubmit = (id, type) => {
     const otp = rideOtp[id];
@@ -68,7 +74,7 @@ const PassengersDetails = () => {
       alert("Please enter a valid 4-digit OTP!");
       return;
     }
-  
+
     if (type === "start") {
       alert(`OTP submitted for starting the ride!`);
       setRideStatus((prev) => ({ ...prev, [id]: "rideStarted" }));
@@ -79,46 +85,50 @@ const PassengersDetails = () => {
       setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP
     }
   };
-  
-  
 
   const navigate = useNavigate();
 
-const handlePayment = (rideId) => {
-  // Pass any relevant payment data here, such as rideId or fare
-  navigate(`/`);
-};
+  const handlePayment = (rideId) => {
+    // Pass any relevant payment data here, such as rideId or fare
+    navigate(`/checkout`);
+  };
+  const handleGoHome = (rideId) => {
+    // Pass any relevant payment data here, such as rideId or fare
+    navigate(`/`);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-1/4 bg-white shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Dashboard
-        </h2>
-        <div className="space-y-4">
-          <button
-            onClick={() => setActiveTab("myRides")}
-            className={`w-full text-left px-4 py-3 rounded-lg text-lg font-medium transition ${
-              activeTab === "myRides"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-100"
-            }`}
-          >
-            My Rides
-          </button>
-          <button
-            onClick={() => setActiveTab("bookRide")}
-            className={`w-full text-left px-4 py-3 rounded-lg text-lg font-medium transition ${
-              activeTab === "bookRide"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-blue-100"
-            }`}
-          >
-            Book a Ride
-          </button>
-        </div>
-      </div>
+{/* Sidebar */}
+<div className="w-full md:w-1/4 bg-white shadow-lg p-6 md:p-8">
+  <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-4 md:mb-6">
+    Dashboard
+  </h2>
+  <div className="space-y-3 md:space-y-4">
+    <button
+      onClick={() => setActiveTab("myRides")}
+      className={`w-full text-left px-3 py-2 md:px-4 md:py-3 rounded-lg text-base md:text-lg font-medium transition ${
+        activeTab === "myRides"
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200 text-gray-800 hover:bg-blue-100"
+      }`}
+    >
+      My Rides
+    </button>
+    <button
+      // onClick={() => setActiveTab("bookRide")}
+      onClick={handleGoHome}
+      className={`w-full text-left px-3 py-2 md:px-4 md:py-3 rounded-lg text-base md:text-lg font-medium transition ${
+        activeTab === "bookRide"
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200 text-gray-800 hover:bg-blue-100"
+      }`}
+    >
+      Book a Ride
+    </button>
+  </div>
+</div>
+
 
       {/* Main Content */}
       <div className="w-3/4 p-6">
@@ -198,8 +208,11 @@ const handlePayment = (rideId) => {
                         <span className="font-medium">Cab: {ride.Cab}</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
-                      <FaMoneyBillAlt className="text-green-500" /> {/* Rate icon */}
-                        <span className="font-medium">Rate: {ride.rate} Rs/Km</span>
+                        <FaMoneyBillAlt className="text-green-500" />{" "}
+                        {/* Rate icon */}
+                        <span className="font-medium">
+                          Rate: {ride.rate} Rs/Km
+                        </span>
                       </div>
                     </div>
                     {/* Divider */}
@@ -241,69 +254,78 @@ const handlePayment = (rideId) => {
                         <label className="block mb-2 text-sm font-medium text-gray-600">
                           Enter OTP:
                         </label>
-                
-                        <div className="flex items-center gap-2 mt-2">
-  {Array(4)
-    .fill("")
-    .map((_, index) => (
-      <input
-        key={index}
-        type="text"
-        maxLength="1"
-        className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
-        ref={(el) => (otpRefs.current[index] = el)} // Add ref for each input
-        value={rideOtp[ride.id]?.[index] || ""}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^\d?$/.test(value)) { // Allow only one digit
-            const otpArray = rideOtp[ride.id]?.split("") || ["", "", "", ""];
-            otpArray[index] = value;
-            setRideOtp((prev) => ({
-              ...prev,
-              [ride.id]: otpArray.join(""),
-            }));
-            // Move focus to the next box
-            if (value && index < 3) {
-              otpRefs.current[index + 1].focus();
-            }
-          }
-        }}
-        onKeyDown={(e) => {
-          // Handle backspace to go to the previous box
-          if (e.key === "Backspace" && !e.target.value && index > 0) {
-            otpRefs.current[index - 1].focus();
-          }
-        }}
-      />
-    ))}
-  <button
-    onClick={() => handleOtpSubmit(ride.id, "start")} // Adjust the type for start or end OTP
-    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-  >
-    Submit OTP
-  </button>
-</div>
 
-                         
-                  
+                        <div className="flex items-center gap-2 mt-2">
+                          {Array(4)
+                            .fill("")
+                            .map((_, index) => (
+                              <input
+                                key={index}
+                                type="text"
+                                maxLength="1"
+                                className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
+                                ref={(el) => (otpRefs.current[index] = el)} // Add ref for each input
+                                value={rideOtp[ride.id]?.[index] || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (/^\d?$/.test(value)) {
+                                    // Allow only one digit
+                                    const otpArray = rideOtp[ride.id]?.split(
+                                      ""
+                                    ) || ["", "", "", ""];
+                                    otpArray[index] = value;
+                                    setRideOtp((prev) => ({
+                                      ...prev,
+                                      [ride.id]: otpArray.join(""),
+                                    }));
+                                    // Move focus to the next box
+                                    if (value && index < 3) {
+                                      otpRefs.current[index + 1].focus();
+                                    }
+                                  }
+                                }}
+                                onKeyDown={(e) => {
+                                  // Handle backspace to go to the previous box
+                                  if (
+                                    e.key === "Backspace" &&
+                                    !e.target.value &&
+                                    index > 0
+                                  ) {
+                                    otpRefs.current[index - 1].focus();
+                                  }
+                                }}
+                              />
+                            ))}
+                          <button
+                            onClick={() => handleOtpSubmit(ride.id, "start")} // Adjust the type for start or end OTP
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                          >
+                            Submit OTP
+                          </button>
+                        </div>
                       </div>
                     )}
                     {/* Message */}
                     {rideStatus[ride.id] === "rideStarted" && (
-  <div className="mt-4">
-    <p className="text-green-500 font-semibold">
-      Your ride has started!!
-    </p>
-    <p className="text-gray-700 font-semibold mt-3">
-       Start Reading: {startReading[ride.id] || "Not provided"}
-    </p>
-  </div>
-)}
+                      <div className="mt-4">
+                        <p className="text-green-500 font-semibold">
+                          Your ride has started!!
+                        </p>
+                        <p className="text-gray-700 font-semibold mt-3">
+                          Start Reading:{" "}
+                          {startReading[ride.id] || "Not provided"}
+                        </p>
+                      </div>
+                    )}
 
                     {/* End Reading */}
                     {(rideStatus[ride.id] === "end" ||
                       rideStatus[ride.id] === "endReadingDone") && (
                       <div>
+                      <p className="text-gray-700 font-semibold mt-3 mb-5">
+                          Start Reading:{" "}
+                          <span className="font-bold">{startReading[ride.id] || "Not provided"}</span>
+                        </p>
                         <label className="block mb-2 text-sm font-medium text-gray-600">
                           Enter End Reading:
                         </label>
@@ -334,53 +356,60 @@ const handlePayment = (rideId) => {
                       </div>
                     )}
                     {rideStatus[ride.id] === "endReadingDone" && (
-  <div className="mt-4">
-    <label className="block mb-2 text-sm font-medium text-gray-600">
-      Enter OTP:
-    </label>
-    <div className="flex items-center gap-2 mt-2">
-  {Array(4)
-    .fill("")
-    .map((_, index) => (
-      <input
-        key={index}
-        type="text"
-        maxLength="1"
-        className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
-        ref={(el) => (otpRefs.current[index] = el)} // Add ref for each input
-        value={rideOtp[ride.id]?.[index] || ""}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^\d?$/.test(value)) { // Allow only one digit
-            const otpArray = rideOtp[ride.id]?.split("") || ["", "", "", ""];
-            otpArray[index] = value;
-            setRideOtp((prev) => ({
-              ...prev,
-              [ride.id]: otpArray.join(""),
-            }));
-            // Move focus to the next box
-            if (value && index < 3) {
-              otpRefs.current[index + 1].focus();
-            }
-          }
-        }}
-        onKeyDown={(e) => {
-          // Handle backspace to go to the previous box
-          if (e.key === "Backspace" && !e.target.value && index > 0) {
-            otpRefs.current[index - 1].focus();
-          }
-        }}
-      />
-    ))}
-  <button
-    onClick={() => handleOtpSubmit(ride.id, "end")} // Submit OTP for ending the ride
-    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-  >
-    Submit OTP
-  </button>
-</div>
-  </div>
-)}
+                      <div className="mt-4">
+                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                          Enter OTP:
+                        </label>
+                        <div className="flex items-center gap-2 mt-2">
+                          {Array(4)
+                            .fill("")
+                            .map((_, index) => (
+                              <input
+                                key={index}
+                                type="text"
+                                maxLength="1"
+                                className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
+                                ref={(el) => (otpRefs.current[index] = el)} // Add ref for each input
+                                value={rideOtp[ride.id]?.[index] || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (/^\d?$/.test(value)) {
+                                    // Allow only one digit
+                                    const otpArray = rideOtp[ride.id]?.split(
+                                      ""
+                                    ) || ["", "", "", ""];
+                                    otpArray[index] = value;
+                                    setRideOtp((prev) => ({
+                                      ...prev,
+                                      [ride.id]: otpArray.join(""),
+                                    }));
+                                    // Move focus to the next box
+                                    if (value && index < 3) {
+                                      otpRefs.current[index + 1].focus();
+                                    }
+                                  }
+                                }}
+                                onKeyDown={(e) => {
+                                  // Handle backspace to go to the previous box
+                                  if (
+                                    e.key === "Backspace" &&
+                                    !e.target.value &&
+                                    index > 0
+                                  ) {
+                                    otpRefs.current[index - 1].focus();
+                                  }
+                                }}
+                              />
+                            ))}
+                          <button
+                            onClick={() => handleOtpSubmit(ride.id, "end")} // Submit OTP for ending the ride
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                          >
+                            Submit OTP
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {rideStatus[ride.id] === "rideEnded" && (
                       <p className="mt-4 text-red-500 font-semibold">
@@ -389,17 +418,17 @@ const handlePayment = (rideId) => {
                     )}
                     {rideStatus[ride.id] === "rideEnded" && (
                       <>
-                      <div className="mt-4 flex items-center justify-between">
-    <p className="text-red-500 font-semibold">
-      Total Fare: ₹{totalFare[ride.id]}
-    </p>
-    <button
-      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-     onClick={handlePayment}
-    >
-      Pay Now
-    </button>
-  </div>
+                        <div className="mt-4 flex items-center justify-between">
+                          <p className="text-red-500 font-semibold">
+                            Total Fare: ₹{totalFare[ride.id]}
+                          </p>
+                          <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                            onClick={handlePayment}
+                          >
+                            Pay Now
+                          </button>
+                        </div>
                       </>
                     )}
                   </div>

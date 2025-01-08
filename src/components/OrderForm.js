@@ -302,8 +302,9 @@ const navigate = useNavigate()
 
 
   const formatDate = (date) => {
-    const options = { day: "numeric", month: "short", year: "numeric" };
-    return new Date(date).toLocaleDateString("en-US", options);
+    const options = { day: "numeric", month: "long", year: "numeric" };
+    const formattedDate = new Date(date).toLocaleDateString("en-GB", options);
+    return formattedDate.replace(",", ""); // Remove any unwanted commas
   };
 
 
@@ -438,7 +439,7 @@ const navigate = useNavigate()
         onClick={() => openOtpLogin(car)}
         className="w-full py-2 px-4 md:mt-7 bg-teal-500 text-white font-medium rounded-lg hover:bg-teal-600 transition md:w-auto"
       >
-        Book Now
+       Continue
       </button>
     </div>
   </div>
@@ -491,18 +492,21 @@ const navigate = useNavigate()
               placeholder="Enter your name"
               className="w-full border border-gray-300 rounded-md p-3 focus:ring-1 focus:ring-[#78B3CE] focus:outline-none shadow-md"
             />
-            <input
-              type="number"
-              placeholder="Enter number of passengers"
-              className="w-full border border-gray-300 rounded-md p-3 focus:ring-1 focus:ring-[#78B3CE] focus:outline-none shadow-md"
-              value={formData.passengers || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  passengers: e.target.value,
-                }))
-              }
-            />
+           <input
+  type="number"
+  placeholder="Enter number of passengers"
+  className="w-full border border-gray-300 rounded-md p-3 focus:ring-1 focus:ring-[#78B3CE] focus:outline-none shadow-md"
+  value={formData.passengers || ""}
+  onChange={(e) => {
+    const value = Math.min(Number(e.target.value), 10); // Restrict value to a maximum of 10
+    setFormData((prev) => ({
+      ...prev,
+      passengers: value,
+    }));
+  }}
+  max="10" // This restricts input to 10 in browsers that respect the `max` attribute
+/>
+
             <input
               type="email"
               placeholder="Enter your email"
@@ -555,13 +559,15 @@ const navigate = useNavigate()
       {/* Booking Details */}
       <div className="space-y-4">
         {[
+          { label: "Booking Id", value: "CB001"},
+          { label: "Booking Date", value: formatDate(formData.date) },
           { label: "Cab", value: selectedCar.name },
           { label: "Type", value: selectedCar.cabType },
-          { label: "Date", value: formatDate(formData.date) },
+          { label: "Ride Date", value: formatDate(formData.date) },
           { label: "Time", value: formData.timing },
-          { label: "Hours", value: formData.hours },
+          { label: "Approx Hours", value: formData.hours },
           { label: "Passengers", value: formData.passengers },
-          { label: "Driver", value: selectedCar.driverName },
+          { label: "Driver Name", value: selectedCar.driverName },
           { label: "Driver Contact", value: selectedCar.driverMobile },
           {
             label: "Charges",
