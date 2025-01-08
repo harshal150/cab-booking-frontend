@@ -309,157 +309,160 @@ const navigate = useNavigate()
 
   return (
     <>
-      <div className="flex gap-6 p-6">
-        {/* Form Section */}
-        <form
-  className="bg-gradient-to-br from-white to-[#f4f7fb] p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col gap-4 w-1/3 mx-auto"
-  onSubmit={handleSubmit}
->
-  <h1 className="text-2xl md:text-3xl font-bold text-center text-teal-600 mb-2">
-    Book a Cab
-  </h1>
+  <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start">
+      {/* Form Section */}
+      <form
+        className="w-full md:w-2/5 bg-gradient-to-br from-white to-[#f4f7fb] p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col gap-4"
+        onSubmit={handleSubmit}
+      >
+        <h1 className="text-2xl md:text-3xl font-bold text-center text-teal-600 mb-2">
+          Book a Cab
+        </h1>
 
-  {/* Cab Type */}
-  <div>
-    <label className="block text-gray-700 font-medium mb-1" htmlFor="cabType">
-      Cab Type
-    </label>
-    <select
-      id="cabType"
-      name="cabType"
-      value={formData.cabType}
-      onChange={handleChange}
-      required
-      className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
-    >
-      <option value="" disabled>
-        Select Cab Type
-      </option>
-      <option value="Sedan">Sedan</option>
-      <option value="SUV">SUV</option>
-      <option value="Hatchback">Hatchback</option>
-      <option value="Luxury">Luxury</option>
-    </select>
+        {/* Cab Type */}
+        <div>
+          <label className="block text-gray-700 font-medium mb-1" htmlFor="cabType">
+            Cab Type
+          </label>
+          <select
+            id="cabType"
+            name="cabType"
+            value={formData.cabType}
+            onChange={handleChange}
+            required
+            className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
+          >
+            <option value="" disabled>
+              Select Cab Type
+            </option>
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Luxury">Luxury</option>
+          </select>
+        </div>
+
+        {/* Date */}
+        <div>
+          <label className="block text-gray-700 font-medium mb-1" htmlFor="date">
+            Journey Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            required
+            className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
+          />
+        </div>
+
+        {/* Time */}
+        <div>
+          <label className="block text-gray-700 font-medium mb-1" htmlFor="timing">
+            Journey Time
+          </label>
+          <input
+            type="time"
+            id="timing"
+            name="timing"
+            value={formData.timing}
+            onChange={handleChange}
+            required
+            placeholder="hh:mm"
+            className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
+          />
+        </div>
+
+        {/* Hours */}
+        <div>
+          <label className="block text-gray-700 font-medium mb-1" htmlFor="hours">
+            Approximate Hours
+          </label>
+          <input
+            type="number"
+            id="hours"
+            name="hours"
+            value={formData.hours}
+            onChange={handleChange}
+            placeholder="Enter duration in hours"
+            required
+            className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
+            min={1}
+          />
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full py-2 mt-3 rounded-md bg-teal-500 text-white font-semibold hover:bg-teal-600 transition-colors shadow-md focus:ring-4 focus:ring-teal-300"
+        >
+          Book Now
+        </button>
+      </form>
+
+      {/* Filtered Cars Section */}
+      <div className="mt-4 md:mt-0 flex flex-col gap-4">
+      {filteredCars.map((car) => (
+  <div
+    key={car.id}
+    className="flex flex-col md:flex-row w-full items-start md:items-center border border-gray-300 rounded-lg shadow-lg bg-white p-4 md:gap-48"
+  >
+    {/* Car Details */}
+    <div className="flex-1">
+      <p>
+        <span className="bg-green-50 text-green-800 text-xl font-bold me-2 px-2.5 mb-3 py-0.5 rounded">
+          {car.name}
+        </span>
+      </p>
+      <div
+        className="flex flex-col md:flex-row md:items-center bg-gray-100 p-4 mt-2 rounded-lg shadow-sm space-y-2 mb-5 md:space-y-0 md:space-x-10"
+      >
+        <p className="text-sm text-gray-700 font-medium">
+          <span className="font-semibold text-teal-600">Type:</span> {car.cabType}
+        </p>
+        <p className="text-sm text-gray-700 font-medium">
+          <span className="font-semibold text-teal-600">Rate:</span> {car.rate}
+        </p>
+        <p className="text-sm text-gray-700 font-medium">
+          <span className="font-semibold text-teal-600">Fix Charges:</span> ₹
+          {car.fixedCharges}
+        </p>
+      </div>
+    </div>
+
+    {/* Book Now Button */}
+    <div className="w-full md:w-auto">
+      <button
+        onClick={() => openOtpLogin(car)}
+        className="w-full py-2 px-4 md:mt-7 bg-teal-500 text-white font-medium rounded-lg hover:bg-teal-600 transition md:w-auto"
+      >
+        Book Now
+      </button>
+    </div>
   </div>
+))}
 
-  {/* Date */}
-  <div>
-    <label className="block text-gray-700 font-medium mb-1" htmlFor="date">
-      Journey Date
-    </label>
-    <input
-      type="date"
-      id="date"
-      name="date"
-      value={formData.date}
-      onChange={handleChange}
-      required
-      className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
-    />
-  </div>
 
-  {/* Time */}
-  <div>
-      <label className="block text-gray-700 font-medium mb-1" htmlFor="timing">
-        Journey Time
-      </label>
-      <input
-        type="time"
-        id="timing"
-        name="timing"
-        value={formData.timing}
-        onChange={handleChange}
-        required
-        placeholder="hh:mm"
-        className={`py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition ${
-          !formData.timing ? "placeholder-gray-400" : ""
-        }`}
-      />
+      </div>
     </div>
 
 
-  {/* Hours */}
-  <div>
-    <label className="block text-gray-700 font-medium mb-1" htmlFor="hours">
-      Approximate Hours
-    </label>
-    <input
-      type="number"
-      id="hours"
-      name="hours"
-      value={formData.hours}
-      onChange={handleChange}
-      placeholder="Enter duration in hours"
-      required
-      className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
-      min={1}
-    />
-  </div>
-
-  {/* Submit Button */}
-  <button
-    type="submit"
-    className="w-full py-2 mt-3 rounded-md bg-teal-500 text-white font-semibold hover:bg-teal-600 transition-colors shadow-md focus:ring-4 focus:ring-teal-300"
-  >
-    Book Now
-  </button>
-</form>
-
-
-        {/* Filtered Cars Section */}
-        <div className="mt-6 flex flex-col gap-4 w-[80%] px-10 bg-white p-6 rounded-2xl shadow-xl hover:shadow-3xl transition-shadow duration-300">
-          {filteredCars.map((car) => (
-            <div
-              key={car.id}
-              className="flex items-center border border-gray-300 rounded-lg shadow-3xl bg-white p-4"
-            >
-              {/* Car Details */}
-              <div className="flex-1">
-                <p className=" ">
-                  <span className="bg-green-50 text-green-800 text-xl font-bold me-2 px-2.5 py-0.5 rounded  ">
-                    {car.name}
-                  </span>
-                </p>
-                <div className="flex flex-row items-center bg-gray-100 p-4 mt-2 rounded-lg shadow-sm space-x-10 w-[80%]">
-  <p className="text-sm text-gray-700 font-medium">
-    <span className="font-semibold text-teal-600">Type:</span> {car.cabType}
-  </p>
-  <p className="text-sm text-gray-700 font-medium">
-    <span className="font-semibold text-teal-600">Rate:</span> {car.rate}
-  </p>
-  <p className="text-sm text-gray-700 font-medium">
-    <span className="font-semibold text-teal-600">Fix Charges:</span> ₹{car.fixedCharges}
-  </p>
-</div>
-
-              </div>
-
-              {/* Book Now Button */}
-              <button
-                // onClick={() => openModal(car)}
-                onClick={() => openOtpLogin(car)}
-                className="navbutton text-white font-medium py-2 px-6 rounded-lg transition"
-              >
-                Book Now{" "}
-                <Icon icon="mdi:arrow-right-thin" width="24" height="24" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* {isOtpLoginOpen && <OTPLogin onClose={closeOtpLogin} />} */}
-      {isOtpLoginOpen && (
+<div className="m-5">
+{isOtpLoginOpen && (
   <OTPLogin
     onClose={closeOtpLogin}
     mobileNumber={mobileNumber}
     setMobileNumber={setMobileNumber}
   />
 )}
+</div>
 
-      {isModalOpen && (
+{isModalOpen && (
   <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
-    <div className="relative bg-white p-8 rounded-lg w-full max-w-3xl shadow-xl">
+    <div className="relative bg-white p-6 md:p-8 rounded-lg w-full max-w-sm md:max-w-3xl shadow-xl">
       {/* Close Button */}
       <button
         className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
@@ -468,15 +471,15 @@ const navigate = useNavigate()
         ✖
       </button>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col gap-6">
         {/* Car Details and Booking Info */}
         <div className="flex-1">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 text-center md:text-left">
             {selectedCar.name}
           </h3>
 
-          <div className="space-y-3">
-          <input
+          <div className="space-y-4">
+            <input
               type="tel"
               placeholder="Mobile Number"
               value={mobileNumber}
@@ -508,12 +511,12 @@ const navigate = useNavigate()
           </div>
 
           {/* Charges Section */}
-          <div className="mt-6 border-t pt-4">
-            <div className="flex justify-between text-gray-800">
+          <div className="mt-6 border-t pt-4 space-y-2">
+            <div className="flex justify-between text-gray-800 text-sm md:text-base">
               <p>Fixed Charges:</p>
               <p>₹{selectedCar.fixedCharges || 500}</p>
             </div>
-            <div className="flex justify-between text-gray-800">
+            <div className="flex justify-between text-gray-800 text-sm md:text-base">
               <p>Variable Charges:</p>
               <p>To be paid at the end of ride</p>
             </div>
@@ -522,7 +525,7 @@ const navigate = useNavigate()
           {/* Pay Now Button */}
           <button
             onClick={handlePayNow}
-            className="mt-6 py-2 px-6 bg-blue-600 text-white rounded-md items-center md:flex justify-center hover:bg-blue-700 transition"
+            className="mt-6 w-full py-3 px-6 bg-blue-600 text-white rounded-md flex items-center justify-center hover:bg-blue-700 transition"
           >
             Pay Now
           </button>
@@ -533,93 +536,62 @@ const navigate = useNavigate()
 )}
 
 
-      {isConfirmationOpen && (
+{isConfirmationOpen && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-xs md:max-w-lg p-4 md:p-6">
       {/* Close Button */}
       <button
         onClick={() => setIsConfirmationOpen(false)}
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-transform transform hover:scale-110"
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 transition-transform transform hover:scale-110"
       >
         ✖
       </button>
 
       {/* Title */}
-      <h3 className="text-4xl font-bold text-gray-800 text-center mb-6">
+      <h3 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-4">
         Confirm Your Booking
       </h3>
 
       {/* Booking Details */}
-      <div className="space-y-5">
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Cab:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {selectedCar.name}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Type:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {selectedCar.cabType}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Date:</span>
-          <span className="text-lg font-semibold text-gray-800">
-          {formatDate(formData.date)}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Time:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {formData.timing}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Hours:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {formData.hours}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Passengers:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {formData.passengers}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Driver:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {selectedCar.driverName}
-          </span>
-        </div>
-        <div className="flex justify-between border-b pb-2">
-          <span className="text-lg font-medium text-gray-500">Driver Contact:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            {selectedCar.driverMobile}
-          </span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-lg font-medium text-gray-500">Charges:</span>
-          <span className="text-lg font-semibold text-gray-800">
-            ₹
-            {parseInt(selectedCar.rate) * parseInt(formData.hours) +
-              (selectedCar.fixedCharges || 0) || 0}
-          </span>
-        </div>
+      <div className="space-y-4">
+        {[
+          { label: "Cab", value: selectedCar.name },
+          { label: "Type", value: selectedCar.cabType },
+          { label: "Date", value: formatDate(formData.date) },
+          { label: "Time", value: formData.timing },
+          { label: "Hours", value: formData.hours },
+          { label: "Passengers", value: formData.passengers },
+          { label: "Driver", value: selectedCar.driverName },
+          { label: "Driver Contact", value: selectedCar.driverMobile },
+          {
+            label: "Charges",
+            value: `₹${
+              parseInt(selectedCar.rate) * parseInt(formData.hours) +
+              (selectedCar.fixedCharges || 0) || 0
+            }`,
+          },
+        ].map((item, index) => (
+          <div
+            key={index}
+            className="flex justify-between text-sm md:text-base border-b pb-1"
+          >
+            <span className="font-medium text-gray-500">{item.label}:</span>
+            <span className="font-semibold text-gray-800">{item.value}</span>
+          </div>
+        ))}
       </div>
 
       {/* Buttons Section */}
-      <div className="mt-8 flex flex-col md:flex-row gap-4">
+      <div className="mt-6 flex flex-col md:flex-row gap-3">
         <button
           onClick={handleDownload}
-          className="flex-1 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all duration-300 shadow-sm"
+          className="w-full py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all duration-300 shadow-sm"
         >
           Download
         </button>
         <button
           onClick={handleProceed}
-          className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md"
+          className="w-full py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md"
         >
           Proceed
         </button>
@@ -627,6 +599,8 @@ const navigate = useNavigate()
     </div>
   </div>
 )}
+
+
 
 
       {/* OTP Login */}
