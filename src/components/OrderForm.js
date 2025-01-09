@@ -220,6 +220,8 @@ const OrderForm = () => {
       status: "Not Available",
     },
   ];
+
+  
   
 
   const handleChange = (e) => {
@@ -414,7 +416,7 @@ const OrderForm = () => {
       <img
         src={car.CarImg}
         alt={car.name}
-        className="w-20 h-20 object-cover rounded-full mr-4"
+        className="w-24 h-16 object-contain rounded-full mr-4"
       />
 
       {/* Car Details */}
@@ -527,15 +529,23 @@ const OrderForm = () => {
 
                 {/* Charges Section */}
                 <div className="mt-6 border-t pt-4 space-y-2">
-                  <div className="flex justify-between text-gray-800 text-sm md:text-base">
-                    <p>Fixed Charges:</p>
-                    <p>₹{selectedCar.fixedCharges || 500}</p>
-                  </div>
-                  <div className="flex justify-between text-gray-800 text-sm md:text-base">
-                    <p>Variable Charges:</p>
-                    <p className="font-semibold">{"{To be paid at end of Ride}"}</p>
-                  </div>
-                </div>
+  {/* Booking Charges */}
+  <div className="flex justify-between text-gray-800 text-sm md:text-base">
+    <p>Booking Charges:</p>
+    <p>₹{selectedCar?.fixedCharges || 500}</p>
+  </div>
+
+  {/* Variable Charges */}
+  <div className="flex justify-between text-gray-800 text-sm md:text-base">
+    <p>Variable Charges:</p>
+    <p className="font-semibold">
+      {selectedCar?.rate
+        ? `${selectedCar.rate.split("km ")[0]} (To be paid at end of Ride)`
+        : "To be paid at end of Ride"}
+    </p>
+  </div>
+</div>
+
 
                 {/* Pay Now Button */}
                 <button
