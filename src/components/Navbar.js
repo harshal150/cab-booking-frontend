@@ -40,7 +40,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          {/* <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 focus:outline-none"
@@ -62,12 +62,12 @@ const Navbar = () => {
                 />
               </svg>
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      <div
+      {/* <div
         className={`${
           isMenuOpen ? "block" : "hidden"
         } md:hidden bg-gray-100 shadow-md`}
@@ -96,7 +96,7 @@ const Navbar = () => {
         >
           Book a Cab
         </a>
-      </div>
+      </div> */}
     </nav>
   );
 };
