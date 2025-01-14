@@ -234,7 +234,7 @@ const OrderForm = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    const response = await fetch("http://localhost:5001/api/cars");
+    const response = await fetch("https://cabapi.payplatter.in/api/cars");
     if (!response.ok) {
       throw new Error("Failed to fetch car data");
     }
