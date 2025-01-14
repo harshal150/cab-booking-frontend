@@ -221,9 +221,6 @@ const OrderForm = () => {
     },
   ];
 
-  
-  
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -232,10 +229,35 @@ const OrderForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFilteredCars(dummyCars); // Show all cars in the list
-  };
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch("http://localhost:5001/api/cars");
+    if (!response.ok) {
+      throw new Error("Failed to fetch car data");
+    }
+    const data = await response.json();
+
+    // Map API data to include the required `CarImg` field for displaying the image
+    const carsWithImage = data.map((car) => ({
+      ...car,
+      CarImg: carimage, // Keeping the image as it is
+      rate: `${car.rate_per_km} Rs/km`, // Mapping API's `rate_per_km` to `rate`
+      fixedCharges: car.fixed_charges, // Mapping API's `fixed_charges` to `fixedCharges`
+      status: car.status === "available" ? "Available" : "Not Available", // Normalize status text
+    }));
+
+    setFilteredCars(carsWithImage);
+  } catch (error) {
+    console.error("Error fetching cars:", error);
+  }
+};
+
+
+
+
   // Open OTP Login Modal
   const openOtpLogin = (car) => {
     setSelectedCar(car); // Set the selected car
@@ -267,8 +289,6 @@ const OrderForm = () => {
     navigate("/passangers");
     // Proceed with booking logic
   };
-
-
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -397,11 +417,6 @@ const OrderForm = () => {
 
         {/* Filtered Cars Section */}
 
-
-
-
-
-
         <div className="mt-8 space-y-4 md:w-3/5">
   {filteredCars.map((car) => (
     <div
@@ -423,7 +438,9 @@ const OrderForm = () => {
       <div className="flex-1">
         <h3
           className={`text-lg font-semibold ${
-            car.status === "Available" ? "text-gray-800" : "text-gray-600"
+            car.status === "Available"
+              ? "text-gray-800"
+              : "text-gray-600"
           }`}
         >
           {car.name}
@@ -432,7 +449,8 @@ const OrderForm = () => {
           <span className="font-medium">Rate:</span> {car.rate}
         </p>
         <p className="text-sm text-gray-500">
-          <span className="font-medium">Fixed Charges:</span> ₹{car.fixedCharges}
+          <span className="font-medium">Fixed Charges:</span> ₹
+          {car.fixedCharges}
         </p>
         <p
           className={`mt-1 inline-block px-2 py-1 text-sm rounded-full font-semibold ${
@@ -458,10 +476,7 @@ const OrderForm = () => {
   ))}
 </div>
 
-
       </div>
-
-      
 
       {/* {isOtpLoginOpen && <OTPLogin onClose={closeOtpLogin} />} */}
       <div className="m-5">
@@ -529,23 +544,24 @@ const OrderForm = () => {
 
                 {/* Charges Section */}
                 <div className="mt-6 border-t pt-4 space-y-2">
-  {/* Booking Charges */}
-  <div className="flex justify-between text-gray-800 text-sm md:text-base">
-    <p>Booking Charges:</p>
-    <p>₹{selectedCar?.fixedCharges || 500}</p>
-  </div>
+                  {/* Booking Charges */}
+                  <div className="flex justify-between text-gray-800 text-sm md:text-base">
+                    <p>Booking Charges:</p>
+                    <p>₹{selectedCar?.fixedCharges || 500}</p>
+                  </div>
 
-  {/* Variable Charges */}
-  <div className="flex justify-between text-gray-800 text-sm md:text-base">
-    <p>Variable Charges:</p>
-    <p className="font-semibold">
-      {selectedCar?.rate
-        ? `${selectedCar.rate.split("km ")[0]} (To be paid at end of Ride)`
-        : "To be paid at end of Ride"}
-    </p>
-  </div>
-</div>
-
+                  {/* Variable Charges */}
+                  <div className="flex justify-between text-gray-800 text-sm md:text-base">
+                    <p>Variable Charges:</p>
+                    <p className="font-semibold">
+                      {selectedCar?.rate
+                        ? `${
+                            selectedCar.rate.split("km ")[0]
+                          } (To be paid at end of Ride)`
+                        : "To be paid at end of Ride"}
+                    </p>
+                  </div>
+                </div>
 
                 {/* Pay Now Button */}
                 <button
@@ -612,7 +628,6 @@ const OrderForm = () => {
 
             {/* Buttons Section */}
             <div className="mt-6 flex flex-col md:flex-row gap-3">
-           
               <button
                 onClick={handleProceed}
                 className="w-full py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md"
