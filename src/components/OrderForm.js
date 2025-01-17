@@ -50,7 +50,7 @@ const OrderForm = () => {
       const carsWithImage = data.map((car) => ({
         ...car,
         CarImg: carimage,
-        name: car.name,
+        name: car.cab_name,
         rate: `${car.rate_per_km} Rs/km`,
         fixedCharges: car.fixed_charges,
         status: car.availability === "Not Available" ? "Not Available" : "Available",
