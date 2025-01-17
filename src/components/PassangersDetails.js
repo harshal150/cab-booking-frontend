@@ -120,8 +120,8 @@ const handlePayment = (booking) => {
     const password = "[C@445aba30";
     const privateKey = "Wq0F6lS7A5tIJU90";
     const privateValue = "lo4syhqHnRjm4L0T";
-    const successURL = "https://cab.payplatter.in/finalpaymentsuccess";
-    const failureURL = "http://localhost:3000/payment-failure";
+    const successURL = "https://cabapi.payplatter.in/finalpaymentsuccess";
+    const failureURL = "https://cabapi.payplatter.in/payment-failure";
 
     // Payment Details
     const txnId = `txn_${Date.now()}`; // Unique transaction ID

@@ -300,7 +300,7 @@ const OrderForm = () => {
       const privateKey = "Wq0F6lS7A5tIJU90";
       const privateValue = "lo4syhqHnRjm4L0T";
       const successURL = "https://cab.payplatter.in/payment-success";
-      const failureURL = "http://localhost:3000/payment-failure";
+      const failureURL = "https://cab.payplatter.in/payment-failure";
   
       const encryptData = (data, iv, key) => {
         const keyBytes = CryptoJS.enc.Utf8.parse(key.padEnd(16, "0").slice(0, 16));
