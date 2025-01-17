@@ -13,11 +13,11 @@ import CryptoJS from "crypto-js";
 
 const PassengersDetails = () => {
   const [activeTab, setActiveTab] = useState("myRides");
-  const [rideStatus, setRideStatus] = useState({}); // Tracks the state of each ride (started/ended)
-  const [startReading, setStartReading] = useState({});
-  const [endReading, setEndReading] = useState({});
-  const [rideOtp, setRideOtp] = useState({});
-  const [totalFare, setTotalFare] = useState({}); // Tracks fare for each ride
+  const [rideStatus, setRideStatus] = useState({}); // Tracks status per booking
+  const [startReading, setStartReading] = useState({}); // Tracks start reading per booking
+  const [endReading, setEndReading] = useState({}); // Tracks end reading per booking
+  const [rideOtp, setRideOtp] = useState({}); // Tracks OTP per booking
+  const [totalFare, setTotalFare] = useState({}); // Tracks fare per booking  
   const [bookings, setBookings] = useState([]); // Stores booking data fetched from API
   const otpRefs = useRef([]);
   const mobileNumber = sessionStorage.getItem("mobileNumber");
@@ -25,7 +25,9 @@ const PassengersDetails = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get("https://cabapi.payplatter.in/api/bookings");
+        const response = await axios.get(
+          "https://cabapi.payplatter.in/api/bookings"
+        );
         const data = response.data;
 
         // Filter bookings based on the mobile number
@@ -77,149 +79,159 @@ const PassengersDetails = () => {
     const distance = parseInt(endReading[id]) - parseInt(startReading[id]); // Calculate distance
     const fare = distance * rate; // Calculate fare
 
-    setTotalFare((prev) => ({ ...prev, [id]: fare })); // Store fare in state
-    setRideStatus((prev) => ({ ...prev, [id]: "endReadingDone" })); // Mark end reading as done
+    setTotalFare((prev) => ({ ...prev, [id]: fare })); // Update only for this booking
+  setRideStatus((prev) => ({ ...prev, [id]: "endReadingDone" })); // Update only for this booking
   };
 
   // Handles OTP submission for starting or ending a ride
-  const handleOtpSubmit = (id, type) => {
-    const otp = rideOtp[id];
+  const handleOtpSubmit = async (id, type) => {
+    const otp = rideOtp[id]; // Get OTP for this booking
+    const storedOtp = type === "start" 
+      ? localStorage.getItem(`otp_${bookings.find((b) => b.id === id).driver_mobile_no}`)
+      : localStorage.getItem(`end_otp_${bookings.find((b) => b.id === id).driver_mobile_no}`);
+  
     if (!otp || otp.length !== 4 || isNaN(otp)) {
       alert("Please enter a valid 4-digit OTP!");
       return;
     }
-
-    if (type === "start") {
-      alert(`OTP submitted for starting the ride!`);
-      setRideStatus((prev) => ({ ...prev, [id]: "rideStarted" }));
-      setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP
-    } else if (type === "end") {
-      alert(`OTP submitted for ending the ride!`);
-      setRideStatus((prev) => ({ ...prev, [id]: "rideEnded" }));
-      setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP
+  
+    if (otp === storedOtp) {
+      if (type === "start") {
+        alert(`OTP verified! Starting the ride.`);
+        setRideStatus((prev) => ({ ...prev, [id]: "rideStarted" }));
+        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP for this booking
+      } else if (type === "end") {
+        alert(`OTP verified! Ending the ride.`);
+        setRideStatus((prev) => ({ ...prev, [id]: "rideEnded" }));
+        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP for this booking
+      }
+    } else {
+      alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
     }
   };
+  
 
   const navigate = useNavigate();
-
 
   const handleGoHome = (rideId) => {
     // Pass any relevant payment data here, such as rideId or fare
     navigate(`/`);
   };
 
+  const handlePayment = (booking) => {
+    try {
+      // Constants
+      const RouterDomain =
+        "https://test.payplatter.in/Router/initiateTransaction";
+      const merchantCode = "THE265";
+      const username = "MPANKA261";
+      const password = "[C@445aba30";
+      const privateKey = "Wq0F6lS7A5tIJU90";
+      const privateValue = "lo4syhqHnRjm4L0T";
+      const successURL = "https://cabapi.payplatter.in/finalpaymentsuccess";
+      const failureURL = "https://cabapi.payplatter.in/payment-failure";
 
+      // Payment Details
+      const txnId = `txn_${Date.now()}`; // Unique transaction ID
+      const amount = (totalFare[booking.id] - 25).toFixed(2); // Adjust fare by subtracting ₹25
 
+      // Encrypt Query String
+      const query = `?mcode=${merchantCode}&uname=${username}&psw=${password}&amount=${amount}&mtxnId=${txnId}&pfname=${booking.user_name}&pmno=${booking.user_mobile_no}&pemail=${booking.user_email}&surl=${successURL}&furl=${failureURL}`;
+      const keyBytes = CryptoJS.enc.Utf8.parse(
+        privateKey.padEnd(16, "0").slice(0, 16)
+      );
+      const ivBytes = CryptoJS.enc.Utf8.parse(privateValue);
+      const encryptedQuery = CryptoJS.AES.encrypt(query, keyBytes, {
+        iv: ivBytes,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      })
+        .toString()
+        .replace(/\+/g, "%2B");
 
-const handlePayment = (booking) => {
-  try {
-    // Constants
-    const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
-    const merchantCode = "THE265";
-    const username = "MPANKA261";
-    const password = "[C@445aba30";
-    const privateKey = "Wq0F6lS7A5tIJU90";
-    const privateValue = "lo4syhqHnRjm4L0T";
-    const successURL = "https://cabapi.payplatter.in/finalpaymentsuccess";
-    const failureURL = "https://cabapi.payplatter.in/payment-failure";
+      // Construct Final Payment URL
+      const paymentUrl = `${RouterDomain}?query=${encryptedQuery}&mcode=${merchantCode}`;
 
-    // Payment Details
-    const txnId = `txn_${Date.now()}`; // Unique transaction ID
-    const amount = (totalFare[booking.id] - 25).toFixed(2); // Adjust fare by subtracting ₹25
-
-    // Encrypt Query String
-    const query = `?mcode=${merchantCode}&uname=${username}&psw=${password}&amount=${amount}&mtxnId=${txnId}&pfname=${booking.user_name}&pmno=${booking.user_mobile_no}&pemail=${booking.user_email}&surl=${successURL}&furl=${failureURL}`;
-    const keyBytes = CryptoJS.enc.Utf8.parse(privateKey.padEnd(16, "0").slice(0, 16));
-    const ivBytes = CryptoJS.enc.Utf8.parse(privateValue);
-    const encryptedQuery = CryptoJS.AES.encrypt(query, keyBytes, {
-      iv: ivBytes,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    }).toString().replace(/\+/g, "%2B");
-
-    // Construct Final Payment URL
-    const paymentUrl = `${RouterDomain}?query=${encryptedQuery}&mcode=${merchantCode}`;
-
-    // Save Details in SessionStorage
-    sessionStorage.setItem("user_id", booking.user_id); // Set the user ID
-    sessionStorage.setItem("bookingId", booking.booking_id); 
-    sessionStorage.setItem("fare", amount); // Set the adjusted fare
-
-    // Redirect to Payment Gateway
-    window.location.href = paymentUrl;
-  } catch (error) {
-    console.error("Error initializing payment:", error);
-    alert("An error occurred while processing payment. Please try again.");
-  }
-};
-
-
-
-const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
-  try {
-    if (!startReading || !otp) {
-      alert("Start reading or OTP is missing!");
-      return;
+      // Save Details in SessionStorage
+      sessionStorage.setItem("user_id", booking.user_id); // Set the user ID
+      sessionStorage.setItem("bookingId", booking.booking_id);
+      sessionStorage.setItem("fare", amount); // Set the adjusted fare
+      sessionStorage.setItem("txnId", txnId); // Set the adjusted fare
+ 
+      // Redirect to Payment Gateway
+      window.location.href = paymentUrl;
+    } catch (error) {
+      console.error("Error initializing payment:", error);
+      alert("An error occurred while processing payment. Please try again.");
     }
+  };
 
-    // Replace template variables
-    const message = encodeURIComponent(
-      `Dear Driver, 
+  const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
+    try {
+      if (!startReading || !otp) {
+        alert("Start reading or OTP is missing!");
+        return;
+      }
+      console.log("otp ride start", otp);
+
+      // Replace template variables
+      const message = encodeURIComponent(
+        `Dear Driver, 
       Kindly confirm the meter reading: ${startReading} and share the OTP ${otp} with the passenger to start the ride. 
       Jhansi Smart City - Larsen and Toubro Limited`
-    );
+      );
 
-    // API URL
-    const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+      // API URL
+      const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
 
-    // Make API call
-    const response = await axios.get(apiUrl);
+      // Make API call
+      const response = await axios.get(apiUrl);
 
-    if (response.status === 200) {
-      alert("Start OTP sent successfully!");
-    } else {
-      alert("Failed to send OTP. Please try again.");
+      if (response.status === 200) {
+        // Store the generated OTP in localStorage with a unique key
+        localStorage.setItem(`otp_${driverMobile}`, otp);
+        alert("Start OTP sent successfully!");
+      } else {
+        alert("Failed to send OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error sending Start OTP:", error);
+      alert("An error occurred while sending Start OTP.");
     }
-  } catch (error) {
-    console.error("Error sending Start OTP:", error);
-    alert("An error occurred while sending Start OTP.");
-  }
-};
+  };
 
+  const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
+    try {
+      if (!endReading || !otp) {
+        alert("End reading or OTP is missing!");
+        return;
+      }
 
-const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
-  try {
-    if (!endReading || !otp) {
-      alert("End reading or OTP is missing!");
-      return;
-    }
-
-    // Replace template variables
-    const message = encodeURIComponent(
-      `Dear Driver, 
+      // Replace template variables
+      const message = encodeURIComponent(
+        `Dear Driver, 
       Kindly confirm the meter reading: ${endReading} and share the OTP ${otp} with the passenger to end the ride. 
       Jhansi Smart City - Larsen and Toubro Limited`
-    );
+      );
 
-    // API URL
-    const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+      // API URL
+      const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
 
-    // Make API call
-    const response = await axios.get(apiUrl);
+      // Make API call
+      const response = await axios.get(apiUrl);
 
-    if (response.status === 200) {
-      alert("End OTP sent successfully!");
-    } else {
-      alert("Failed to send OTP. Please try again.");
+      if (response.status === 200) {
+        // Store the generated OTP in localStorage with a unique key
+        localStorage.setItem(`end_otp_${driverMobile}`, otp);
+        alert("End OTP sent successfully!");
+      } else {
+        alert("Failed to send OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error sending End OTP:", error);
+      alert("An error occurred while sending End OTP.");
     }
-  } catch (error) {
-    console.error("Error sending End OTP:", error);
-    alert("An error occurred while sending End OTP.");
-  }
-};
-
-
-
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -351,33 +363,43 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
                           Enter Start Reading:
                         </label>
                         <div className="flex gap-2">
-                          <input
-                            type="number"
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                            placeholder="Enter Start Reading"
-                            value={startReading[booking.id] || ""}
-                            onChange={(e) =>
-                              setStartReading((prev) => ({
-                                ...prev,
-                                [booking.id]: e.target.value,
-                              }))
-                            }
-                          />
-                       <button
-  onClick={async () => {
-    try {
-      const otp = Math.floor(1000 + Math.random() * 9000); // Generate OTP
-      await sendStartOtp(booking.driver_name, booking.driver_mobile_no, startReading[booking.id], otp);
-      handleStartReadingSubmit(booking.id); // Call existing function
-    } catch (error) {
-      console.error("Error handling Start Reading:", error);
-    }
-  }}
-  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
->
-  Go
-</button>
+                        <input
+  type="number"
+  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+  placeholder="Enter Start Reading"
+  value={startReading[booking.id] || ""}
+  onChange={(e) =>
+    setStartReading((prev) => ({
+      ...prev,
+      [booking.id]: e.target.value,
+    }))
+  }
+/>
 
+                          <button
+                            onClick={async () => {
+                              try {
+                                const otp = Math.floor(
+                                  1000 + Math.random() * 9000
+                                ); // Generate OTP
+                                await sendStartOtp(
+                                  booking.driver_name,
+                                  booking.driver_mobile_no,
+                                  startReading[booking.id],
+                                  otp
+                                );
+                                handleStartReadingSubmit(booking.id); // Call existing function
+                              } catch (error) {
+                                console.error(
+                                  "Error handling Start Reading:",
+                                  error
+                                );
+                              }
+                            }}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                          >
+                            Go
+                          </button>
                         </div>
                       </div>
                     )}
@@ -432,9 +454,21 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
                           <button
                             onClick={async () => {
                               try {
-                                const otp = rideOtp[booking.id];
+                                const otp = rideOtp[booking.id]; // User-entered OTP
+                                const storedOtp = localStorage.getItem(
+                                  `otp_${booking.driver_mobile_no}`
+                                ); // Retrieve stored OTP from localStorage
+
+                                // Validate the entered OTP
                                 if (!otp || otp.length !== 4 || isNaN(otp)) {
                                   alert("Please enter a valid 4-digit OTP!");
+                                  return;
+                                }
+
+                                if (otp !== storedOtp) {
+                                  alert(
+                                    "Incorrect OTP. Please enter the correct 4-digit OTP!"
+                                  );
                                   return;
                                 }
 
@@ -451,7 +485,7 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
 
                                 if (response.status === 200) {
                                   // Handle OTP submission logic
-                                  alert("OTP submitted for starting the ride!");
+                                  alert("OTP verified! Starting the ride.");
                                   setRideStatus((prev) => ({
                                     ...prev,
                                     [booking.id]: "rideStarted",
@@ -505,33 +539,43 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
                           Enter End Reading:
                         </label>
                         <div className="flex gap-2">
-                          <input
-                            type="number"
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                            placeholder="Enter End Reading"
-                            value={endReading[booking.id] || ""}
-                            onChange={(e) =>
-                              setEndReading((prev) => ({
-                                ...prev,
-                                [booking.id]: e.target.value,
-                              }))
-                            }
-                          />
-                          <button
-  onClick={async () => {
-    try {
-      const otp = Math.floor(1000 + Math.random() * 9000); // Generate OTP
-      await sendEndOtp(booking.driver_name, booking.driver_mobile_no, endReading[booking.id], otp);
-      handleEndReadingSubmit(booking.id, rate); // Call existing function
-    } catch (error) {
-      console.error("Error handling End Reading:", error);
-    }
-  }}
-  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
->
-  Go
-</button>
+                        <input
+  type="number"
+  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+  placeholder="Enter End Reading"
+  value={endReading[booking.id] || ""}
+  onChange={(e) =>
+    setEndReading((prev) => ({
+      ...prev,
+      [booking.id]: e.target.value,
+    }))
+  }
+/>
 
+                          <button
+                            onClick={async () => {
+                              try {
+                                const otp = Math.floor(
+                                  1000 + Math.random() * 9000
+                                ); // Generate OTP
+                                await sendEndOtp(
+                                  booking.driver_name,
+                                  booking.driver_mobile_no,
+                                  endReading[booking.id],
+                                  otp
+                                );
+                                handleEndReadingSubmit(booking.id, rate); // Call existing function
+                              } catch (error) {
+                                console.error(
+                                  "Error handling End Reading:",
+                                  error
+                                );
+                              }
+                            }}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                          >
+                            Go
+                          </button>
                         </div>
                       </div>
                     )}
@@ -584,9 +628,21 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
                           <button
                             onClick={async () => {
                               try {
-                                const otp = rideOtp[booking.id];
+                                const otp = rideOtp[booking.id]; // User-entered OTP
+                                const storedOtp = localStorage.getItem(
+                                  `end_otp_${booking.driver_mobile_no}`
+                                ); // Retrieve stored OTP
+
+                                // Validate the entered OTP
                                 if (!otp || otp.length !== 4 || isNaN(otp)) {
                                   alert("Please enter a valid 4-digit OTP!");
+                                  return;
+                                }
+
+                                if (otp !== storedOtp) {
+                                  alert(
+                                    "Incorrect OTP. Please enter the correct 4-digit OTP!"
+                                  );
                                   return;
                                 }
 
@@ -603,7 +659,7 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
 
                                 if (response.status === 200) {
                                   // Handle OTP submission logic
-                                  alert("OTP submitted for ending the ride!");
+                                  alert("OTP verified! Ending the ride.");
                                   setRideStatus((prev) => ({
                                     ...prev,
                                     [booking.id]: "rideEnded",
@@ -637,21 +693,23 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
                       </p>
                     )}
                     {rideStatus[booking.id] === "rideEnded" && (
-  <>
-    <div className="mt-4 flex items-center justify-between">
-      <p className="text-red-500 font-semibold">
-        Total Fare: ₹{totalFare[booking.id] ? totalFare[booking.id] - 25 : 0}
-      </p>
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-        onClick={handlePayment}
-      >
-        Pay Now
-      </button>
-    </div>
-  </>
-)}
-
+                      <>
+                        <div className="mt-4 flex items-center justify-between">
+                          <p className="text-red-500 font-semibold">
+                            Total Fare: ₹
+                            {totalFare[booking.id]
+                              ? totalFare[booking.id] - 25
+                              : 0}
+                          </p>
+                          <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                            onClick={handlePayment}
+                          >
+                            Pay Now
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

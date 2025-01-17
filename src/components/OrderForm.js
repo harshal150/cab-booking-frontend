@@ -718,7 +718,6 @@ const OrderForm = () => {
       {/* Booking Details */}
       <div className="space-y-4">
         {[
-          { label: "Booking Id", value: "CB001" },
           { label: "Booking Date", value: formatDate(new Date()) },
           { label: "Cab", value: selectedCar?.name || "N/A" },
         
