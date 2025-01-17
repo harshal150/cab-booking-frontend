@@ -25,7 +25,7 @@ const PaymentSuccess = () => {
         // 1. SMS to the User
         const userSmsMessage = `Dear ${userName}, Your cab booking is confirmed! Booking ID/Date/Time: ${bookingId} / ${date} ${time} Driver Name/Contact: ${driverName} - ${driverMobile} Jhansi Smart City - Larsen and Toubro Limited`;
 
-        const userSmsUrl = `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${encodeURIComponent(
+        const userSmsUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${encodeURIComponent(
           userSmsMessage
         )}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`;
 console.log(userSmsUrl)
@@ -40,7 +40,7 @@ console.log(userSmsUrl)
         // 2. SMS to the Driver
         const driverSmsMessage = `Dear Driver, You have a new ride request! Booking ID: ${bookingId} Pickup Date/Time: ${date} ${time} Customer Name/Contact: ${userName} - ${mobileNumber} Jhansi Smart City - Larsen and Toubro Limited`;
 
-        const driverSmsUrl = `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${encodeURIComponent(
+        const driverSmsUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${encodeURIComponent(
           driverSmsMessage
         )}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
         console.log(driverSmsUrl)
