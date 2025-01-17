@@ -6,50 +6,40 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSendOtp = async () => {
-    // Validate the mobile number
     if (!/^\d{10}$/.test(mobileNumber)) {
       setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
   
-    setErrorMessage(""); // Clear any previous error messages
+    setErrorMessage("");
   
-    // Generate a random 4-digit OTP
     const randomOtp = Math.floor(1000 + Math.random() * 9000);
-  
-    // API call to send OTP
+    console.log("Generated OTP:", randomOtp); // Debugging OTP generation
+    localStorage.setItem("generatedOtp", randomOtp.toString());
     try {
       const response = await fetch(
         `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=OTP%20to%20login%20JSCL%20Mobile%20App%20is%20${randomOtp}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`,
-        {
-          method: "GET",
-        }
+        { method: "GET" }
       );
   
       if (!response.ok) {
-        // Handle HTTP errors
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
   
-      // Parse the response
       const responseData = await response.json();
       console.log("API Response:", responseData);
   
-      // Check the response content
       if (responseData.responseCode === "success") {
-        setIsOtpSent(true); // Proceed to the next step
-        console.log(`Generated OTP: ${randomOtp}`); // Print OTP for debugging or backend validation
+        setIsOtpSent(true);
+      
+        console.log("Stored OTP in localStorage:", localStorage.getItem("generatedOtp")); // Debugging storage
       } else {
-        setIsOtpSent(true); // Proceed to the next step
+        setIsOtpSent(true);
       }
     } catch (error) {
-      // Log and set error message for unexpected issues
-      setIsOtpSent(true); // Proceed to the next step
-
+      setIsOtpSent(true);
     }
   };
-  
-  
   
 
   const handleOtpChange = (value, index) => {
@@ -64,26 +54,36 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
   };
 
   const handleLogin = () => {
-    const enteredOtp = otp.join("");
+    const enteredOtp = otp.join(""); // Combine OTP digits into a single string
+    const storedOtp = localStorage.getItem("generatedOtp"); // Retrieve OTP from localStorage
+  
+    console.log("Entered OTP:", enteredOtp); // Debugging log
+    console.log("Stored OTP:", storedOtp); // Debugging log
+  
+    // Validate OTP
     if (enteredOtp.length !== 4 || !/^\d{4}$/.test(enteredOtp)) {
       setErrorMessage("Please enter a valid 4-digit OTP.");
       return;
     }
-    setErrorMessage("");
-    onClose(); // Close the OTP screen
+  
+    if (enteredOtp === storedOtp) {
+      setErrorMessage("");
+      localStorage.removeItem("generatedOtp"); // Clear OTP from localStorage after successful login
+      onClose(); // Proceed to the next step or close the OTP screen
+    } else {
+      setErrorMessage("Invalid OTP. Please try again.");
+    }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 md:p-8 rounded-lg w-full max-w-sm md:max-w-md shadow-xl">
-       
-
         {!isOtpSent ? (
           <>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">
-          Passenger Information
-        </h2>
-            {/* Enter Mobile Number */}
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">
+              Passenger Information
+            </h2>
             <input
               type="tel"
               placeholder="Enter your mobile number"
@@ -98,8 +98,6 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
             {errorMessage && (
               <p className="text-sm text-red-500 mb-4">{errorMessage}</p>
             )}
-
-            {/* Send OTP Button */}
             <button
               onClick={handleSendOtp}
               className="w-full py-3 px-6 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors shadow-md"
@@ -109,13 +107,10 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
           </>
         ) : (
           <>
-          <h2 className="text-md md:text-xl font-bold text-gray-800 text-center mb-4 ">
-          Enter your OTP
-        </h2> 
-            {/* Enter OTP */}
+            <h2 className="text-md md:text-xl font-bold text-gray-800 text-center mb-4">
+              Enter your OTP
+            </h2>
             <div className="flex justify-between gap-2 mb-4">
-
-           
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -131,15 +126,12 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
             {errorMessage && (
               <p className="text-sm text-red-500 mb-4">{errorMessage}</p>
             )}
-
-            {/* Verify and Login Button */}
             <button
               onClick={handleLogin}
               className="w-full py-3 px-6 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors shadow-md"
             >
               Verify & Login
             </button>
-           
           </>
         )}
       </div>
