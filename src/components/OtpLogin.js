@@ -110,7 +110,7 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
         ) : (
           <>
           <h2 className="text-md md:text-xl font-bold text-gray-800 text-center mb-4 ">
-          Enter you OTP
+          Enter your OTP
         </h2> 
             {/* Enter OTP */}
             <div className="flex justify-between gap-2 mb-4">
