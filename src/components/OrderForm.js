@@ -293,12 +293,22 @@ const OrderForm = () => {
       const settlementSplit = `online_${paymentAmount}~`;
       const cabName = selectedCar?.name || "Cab Booking";
   
-      const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
-      const merchantCode = "THE265";
-      const username = "MPANKA261";
-      const password = "[C@445aba30";
-      const privateKey = "Wq0F6lS7A5tIJU90";
-      const privateValue = "lo4syhqHnRjm4L0T";
+      // const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
+      // const merchantCode = "THE265";
+      // const username = "MPANKA261";
+      // const password = "[C@445aba30";
+      // const privateKey = "Wq0F6lS7A5tIJU90";
+      // const privateValue = "lo4syhqHnRjm4L0T";
+      // const successURL = "https://cab.payplatter.in/payment-success";
+      // const failureURL = "https://cab.payplatter.in/payment-failure";
+
+
+      const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
+      const merchantCode = "JHA434";
+      const username = "MJHANS434";
+      const password = "[C@1ba15716";
+      const privateKey = "7R7WkmrgZilbokoB";
+      const privateValue = "x8mYTSawyBGpM9iq";
       const successURL = "https://cab.payplatter.in/payment-success";
       const failureURL = "https://cab.payplatter.in/payment-failure";
   
@@ -417,7 +427,7 @@ const OrderForm = () => {
     placeholder="hh:mm"
     className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
     min={formData.date === new Date().toISOString().split("T")[0] ? getCurrentTime() : "10:00"}
-    max="18:00"
+    max="17:00"
   />
 </div>
 
@@ -464,13 +474,14 @@ const OrderForm = () => {
   <p>Please note the following:</p>
   <ol>
     <li>
-      1) Booking charge is Rs 25/-, which will be adjusted to the total fare at the end of the trip. 
-      If the booking is cancelled, the booking charge will not be refunded.
+      1) Booking charge is Rs 25/-, which will NOT be adjusted to the total fare at the end of trip. If booking is cancelled, then booking charge will not be refunded.
+
+
     </li>
-    <li>2) Fare is Rs 10/km from the source place of the user.</li>
+    <li>2) Fare is 10 rs/km from the source place of user.  Source of trip can be in Jhansi Municipal Area only.
+</li>
     <li>
-      3) Please note that the maximum km range of the electric car is 100 KMs. 
-      So please plan your journey accordingly.
+      3)  ⁠Maximum allowed trip distance (one side) is 50 KMs. So please plan your journey accordingly.
     </li>
   </ol>
 </div>

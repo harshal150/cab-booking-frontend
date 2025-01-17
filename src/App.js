@@ -5,9 +5,9 @@ import Checkout from './components/Checkout';
 import PassangersDetails from './components/PassangersDetails';
 import PaymentComponent from './components/payment.js/PaymentForm';
 import PaymentSuccess from './components/payment.js/PaymentSuccess';
-
+import FirstPaymentFailurePage from './components/payment.js/FirstPaymentFailurePage';
 import FinalPaymentSuccess from './components/payment.js/FinalPaymentSuccess';
-
+import FinalPaymentFailure from './components/payment.js/FinalPaymentFailure';
 function App() {
   return (
     <Router>
@@ -22,7 +22,9 @@ function App() {
 
           <Route path="/checkout" element={<PaymentComponent />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<FirstPaymentFailurePage />} />
           <Route path="/finalpaymentsuccess" element={<FinalPaymentSuccess />} />
+          <Route path="/finalpaymentfailure" element={<FinalPaymentFailure />} />
               
         </Routes>
       </div>

@@ -36,7 +36,7 @@ const PassengersDetails = () => {
         );
 
         setBookings(filteredBookings);
-        console.log(filteredBookings);
+        console.log("Filtered Bookings:", filteredBookings); // Debug log
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -119,22 +119,32 @@ const PassengersDetails = () => {
   };
 
   const handlePayment = (booking) => {
+    console.log("Booking object in handlePayment:", booking); // Debug log
+
     try {
       // Constants
-      const RouterDomain =
-        "https://test.payplatter.in/Router/initiateTransaction";
-      const merchantCode = "THE265";
-      const username = "MPANKA261";
-      const password = "[C@445aba30";
-      const privateKey = "Wq0F6lS7A5tIJU90";
-      const privateValue = "lo4syhqHnRjm4L0T";
-      const successURL = "https://cab.payplatter.in/finalpaymentsuccess";
-      const failureURL = "https://cab.payplatter.in/payment-failure";
+      // const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
+      // const merchantCode = "THE265";
+      // const username = "MPANKA261";
+      // const password = "[C@445aba30";
+      // const privateKey = "Wq0F6lS7A5tIJU90";
+      // const privateValue = "lo4syhqHnRjm4L0T";
+      // const successURL = "http://localhost:3000/finalpaymentsuccess";
+      // const failureURL = "https://cab.payplatter.in/payment-failure";
 
+      const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
+      const merchantCode = "JHA434";
+      const username = "MJHANS434";
+      const password = "[C@1ba15716";
+      const privateKey = "7R7WkmrgZilbokoB";
+      const privateValue = "x8mYTSawyBGpM9iq";
+      const successURL = "https://cab.payplatter.in/finalpaymentsuccess";
+      const failureURL = "https://cab.payplatter.in/finalpaymentfailure";
+  
       // Payment Details
       const txnId = `txn_${Date.now()}`; // Unique transaction ID
-      const amount = (totalFare[booking.id] - 25).toFixed(2); // Adjust fare by subtracting ₹25
-
+      const amount = (totalFare[booking.id]); // Adjust fare by subtracting ₹25
+  
       // Encrypt Query String
       const query = `?mcode=${merchantCode}&uname=${username}&psw=${password}&amount=${amount}&mtxnId=${txnId}&pfname=${booking.user_name}&pmno=${booking.user_mobile_no}&pemail=${booking.user_email}&surl=${successURL}&furl=${failureURL}`;
       const keyBytes = CryptoJS.enc.Utf8.parse(
@@ -148,16 +158,29 @@ const PassengersDetails = () => {
       })
         .toString()
         .replace(/\+/g, "%2B");
-
+  
       // Construct Final Payment URL
       const paymentUrl = `${RouterDomain}?query=${encryptedQuery}&mcode=${merchantCode}`;
-
-      // Save Details in SessionStorage
-      sessionStorage.setItem("user_id", booking.user_id); // Set the user ID
-      sessionStorage.setItem("bookingId", booking.booking_id);
+  
+      // Save Booking and Payment Details in SessionStorage and LocalStorage
       sessionStorage.setItem("fare", amount); // Set the adjusted fare
-      sessionStorage.setItem("txnId", txnId); // Set the adjusted fare
- 
+      sessionStorage.setItem("txnId", txnId); // Set the transaction ID
+  
+      // Store booking data in localStorage
+      const bookingDetails = {
+        booking_id: booking.booking_id,
+        booking_date: booking.booking_date,
+        cab_name: booking.cab_name,
+        user_id: booking.user_id,
+        user_name: booking.user_name,
+        user_mobile_no: booking.user_mobile_no,
+      };
+  
+      localStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
+  
+      // Log to confirm the data stored
+      console.log("Booking Details Stored in LocalStorage:", bookingDetails);
+  
       // Redirect to Payment Gateway
       window.location.href = paymentUrl;
     } catch (error) {
@@ -165,6 +188,7 @@ const PassengersDetails = () => {
       alert("An error occurred while processing payment. Please try again.");
     }
   };
+  
 
   const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
     try {
@@ -697,16 +721,16 @@ const PassengersDetails = () => {
                         <div className="mt-4 flex items-center justify-between">
                           <p className="text-red-500 font-semibold">
                             Total Fare: ₹
-                            {totalFare[booking.id]
-                              ? totalFare[booking.id] - 25
-                              : 0}
+                            {totalFare[booking.id]}
+                             
                           </p>
                           <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                            onClick={handlePayment}
-                          >
-                            Pay Now
-                          </button>
+  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+  onClick={() => handlePayment(booking)}
+>
+  Pay Now
+</button>
+
                         </div>
                       </>
                     )}
