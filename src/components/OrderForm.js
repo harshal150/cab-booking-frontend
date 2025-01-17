@@ -299,7 +299,7 @@ const OrderForm = () => {
       const password = "[C@445aba30";
       const privateKey = "Wq0F6lS7A5tIJU90";
       const privateValue = "lo4syhqHnRjm4L0T";
-      const successURL = "http://localhost:3000/payment-success";
+      const successURL = "https://cab.payplatter.in/payment-success";
       const failureURL = "http://localhost:3000/payment-failure";
   
       const encryptData = (data, iv, key) => {

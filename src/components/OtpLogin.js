@@ -76,12 +76,13 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 md:p-8 rounded-lg w-full max-w-sm md:max-w-md shadow-xl">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">
-          Passenger Information
-        </h2>
+       
 
         {!isOtpSent ? (
           <>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6">
+          Passenger Information
+        </h2>
             {/* Enter Mobile Number */}
             <input
               type="tel"
@@ -108,8 +109,13 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
           </>
         ) : (
           <>
+          <h2 className="text-md md:text-xl font-bold text-gray-800 text-center mb-4 ">
+          Enter you OTP
+        </h2> 
             {/* Enter OTP */}
             <div className="flex justify-between gap-2 mb-4">
+
+           
               {otp.map((digit, index) => (
                 <input
                   key={index}
