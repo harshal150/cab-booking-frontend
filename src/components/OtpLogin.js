@@ -20,7 +20,7 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
     // API call to send OTP
     try {
       const response = await fetch(
-        `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=OTP%20to%20login%20JSCL%20Mobile%20App%20is%20${randomOtp}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`,
+        `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=OTP%20to%20login%20JSCL%20Mobile%20App%20is%20${randomOtp}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`,
         {
           method: "GET",
         }
