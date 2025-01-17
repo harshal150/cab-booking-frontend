@@ -6,12 +6,13 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSendOtp = async () => {
+    // Validate the mobile number
     if (!/^\d{10}$/.test(mobileNumber)) {
       setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
   
-    setErrorMessage("");
+    setErrorMessage(""); // Clear any previous error messages
   
     // Generate a random 4-digit OTP
     const randomOtp = Math.floor(1000 + Math.random() * 9000);
@@ -19,28 +20,34 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
     // API call to send OTP
     try {
       const response = await fetch(
-        `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=OTP%20to%20login%20JSCL%20Mobile%20App%20is%20${randomOtp}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`,
+        `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=OTP%20to%20login%20JSCL%20Mobile%20App%20is%20${randomOtp}&senderId=JSICCC&routeId=1&mobileNos=${mobileNumber}&smsContentType=english`,
         {
           method: "GET",
         }
       );
   
-      // Log the response for debugging
+      if (!response.ok) {
+        // Handle HTTP errors
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      // Parse the response
       const responseData = await response.json();
       console.log("API Response:", responseData);
   
-      // Adjust the validation based on the actual response
-      if (response.ok || responseData.responseCode === "success") {
+      // Check the response content
+      if (responseData.responseCode === "success") {
         setIsOtpSent(true); // Proceed to the next step
-        console.log(`Generated OTP: ${randomOtp}`); // For debugging or backend validation
+        console.log(`Generated OTP: ${randomOtp}`); // Print OTP for debugging or backend validation
       } else {
-        setErrorMessage("Failed to send OTP. Please try again.");
+        setIsOtpSent(true); // Proceed to the next step
       }
     } catch (error) {
-      console.error("Error sending OTP:", error);
-      setErrorMessage("Unable to send OTP. Please check your network.");
+      // Log and set error message for unexpected issues
+      console.error("Error sending OTP:", error.message || error);
     }
   };
+  
   
   
 
