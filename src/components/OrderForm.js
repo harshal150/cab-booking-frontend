@@ -460,7 +460,21 @@ const OrderForm = () => {
 
 
 
-          <p className="font-semibold justify-start">Please note that maximum km range of electric car is 100 KMs. So please plan your journey accordingly.</p>
+          <div className="font-normal justify-start">
+  <p>Please note the following:</p>
+  <ol>
+    <li>
+      1) Booking charge is Rs 25/-, which will be adjusted to the total fare at the end of the trip. 
+      If the booking is cancelled, the booking charge will not be refunded.
+    </li>
+    <li>2) Fare is Rs 10/km from the source place of the user.</li>
+    <li>
+      3) Please note that the maximum km range of the electric car is 100 KMs. 
+      So please plan your journey accordingly.
+    </li>
+  </ol>
+</div>
+
         </form>
 
         {/* Filtered Cars Section */}
