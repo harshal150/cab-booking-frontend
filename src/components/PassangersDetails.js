@@ -170,7 +170,7 @@ const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
     );
 
     // API URL
-    const apiUrl = `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+    const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
 
     // Make API call
     const response = await axios.get(apiUrl);
@@ -202,7 +202,7 @@ const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
     );
 
     // API URL
-    const apiUrl = `http://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+    const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
 
     // Make API call
     const response = await axios.get(apiUrl);
