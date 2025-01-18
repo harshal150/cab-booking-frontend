@@ -310,7 +310,7 @@ console.log("Driver Mobile:", selectedCar?.assigned_driver_mobile);
       // const password = "[C@445aba30";
       // const privateKey = "Wq0F6lS7A5tIJU90";
       // const privateValue = "lo4syhqHnRjm4L0T";
-      // const successURL = "https://cab.payplatter.in/payment-success";
+      // const successURL = "http://localhost:3000/payment-success";
       // const failureURL = "https://cab.payplatter.in/payment-failure";
 
 
@@ -712,7 +712,7 @@ console.log("Driver Mobile:", selectedCar?.assigned_driver_mobile);
                   onClick={handlePayNow}
                   className="mt-5 w-full py-2 px-4 bg-blue-600 text-white rounded-md flex items-center justify-center hover:bg-blue-700 transition"
                 >
-                  Pay Now
+                  Proceed 
                 </button>
               </div>
             </div>
@@ -768,7 +768,7 @@ console.log("Driver Mobile:", selectedCar?.assigned_driver_mobile);
           onClick={submitBooking}
           className="w-full py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md"
         >
-          Confirm & Submit
+          Confirm and Pay Now
         </button>
       </div>
     </div>

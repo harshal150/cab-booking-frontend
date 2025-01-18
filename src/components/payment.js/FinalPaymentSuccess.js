@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import logo from "../../assets/Logo.png";
-
 const FinalPaymentSuccess = () => {
   const navigate = useNavigate();
   const [transactionDetails, setTransactionDetails] = useState(null);
@@ -30,13 +29,14 @@ const FinalPaymentSuccess = () => {
       });
     }
 
-    // Retrieve and set booking details from localStorage
     const storedBookingDetails = localStorage.getItem("bookingDetails");
+    console.log("Raw storedBookingDetails:", storedBookingDetails); // Logs the JSON string
+  
     if (storedBookingDetails) {
-      setBookingDetails(JSON.parse(storedBookingDetails));
-    }
-
-    console.log(storedBookingDetails.user_id)
+      const parsedDetails = JSON.parse(storedBookingDetails);
+      console.log("Parsed storedBookingDetails:", parsedDetails); // Logs the object
+      console.log("User ID:", parsedDetails.user_id); // Access user_id
+      setBookingDetails(parsedDetails);  }
   }, []);
 
 
@@ -61,7 +61,11 @@ const FinalPaymentSuccess = () => {
 
 
 
-  
+
+
+  const goToHome = () => {
+    navigate("/");
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-green-50 to-green-100 p-6">
@@ -81,63 +85,86 @@ const FinalPaymentSuccess = () => {
         Download Receipt
       </button>
 
-{/* Receipt Card */}
-<div className="bg-gradient-to-r from-white via-gray-100 to-white p-6 rounded-xl shadow-lg w-full max-w-xl border border-gray-200">
-  <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
-    Transaction Receipt
-  </h1>
-  {transactionDetails && bookingDetails ? (
-    <div className="text-gray-700 space-y-4">
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Transaction ID:</span>
-        <span>{transactionDetails.TransactionID}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Paid Amount:</span>
-        <span className="text-green-600 font-semibold">₹{transactionDetails.Amount}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Payment Method:</span>
-        <span>{transactionDetails.PaymentMethod}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Payment Status:</span>
-        <span className="text-green-600 font-semibold">{transactionDetails.PaymentStatus}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Cab Name:</span>
-        <span>{bookingDetails.cab_name}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">Booking Date:</span>
-        <span>{bookingDetails.booking_date}</span>
-      </div>
-      <div className="flex justify-between items-center border-b pb-3">
-        <span className="font-medium">User Name:</span>
-        <span>{bookingDetails.user_name}</span>
-      </div>
-      <div className="flex justify-between items-center mb-4">
-        <span className="font-medium">User Mobile No:</span>
-        <span>{bookingDetails.user_mobile_no}</span>
-      </div>
-
-
-      <div className="flex items-center justify-center ">
-  <button
-    onClick={() => navigate("/")}
-    className="py-2 px-6 bg-green-600 hover:bg-green-700 text-white text-lg font-medium rounded-lg shadow-lg transition duration-200"
-  >
-    Back to Home
-  </button>
-</div>
-
+      <div className="flex items-center justify-center  ">
+  {bookingDetails ? (
+    <div className="w-full max-w-4xl  p-6 rounded-xl shadow-lg border bg-gray-100 border-gray-200">
+      <table className="table-auto w-full text-left border-collapse">
+        {/* Table Header */}
+        <thead>
+          <tr className="b rounded-t-xl">
+            <th
+              colSpan="2"
+              className="py-4 px-6 text-2xl font-bold text-center rounded-t-xl"
+            >
+              Booking Details
+            </th>
+          </tr>
+          <tr className="bg-gray-50">
+            <th className="py-3 px-6 text-sm font-semibold text-gray-700 border-b">
+              Field
+            </th>
+            <th className="py-3 px-6 text-sm font-semibold text-gray-700 border-b">
+              Value
+            </th>
+          </tr>
+        </thead>
+        {/* Table Body */}
+        <tbody className="divide-y divide-gray-200">
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">Booking ID</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {bookingDetails.booking_id}
+            </td>
+          </tr>
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">Booking Date</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {new Date(bookingDetails.booking_date).toLocaleDateString()}
+            </td>
+          </tr>
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">Cab Name</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {bookingDetails.cab_name}
+            </td>
+          </tr>
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">User ID</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {bookingDetails.user_id}
+            </td>
+          </tr>
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">User Name</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {bookingDetails.user_name}
+            </td>
+          </tr>
+          <tr className="hover:bg-gray-50 transition">
+            <td className="py-4 px-6 text-gray-600">User Mobile No</td>
+            <td className="py-4 px-6 text-gray-900 font-medium">
+              {bookingDetails.user_mobile_no}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   ) : (
-    <p className="text-gray-500 text-center">
-      Loading transaction and booking details...
-    </p>
+    <p className="text-center text-gray-500">Loading booking details...</p>
   )}
 </div>
+
+
+
+<div className="flex justify-center items-center">
+      <button
+        onClick={goToHome}
+        className="py-2 px-6 bg-green-500 mt-8 hover:bg-green-600 text-white text-lg font-medium rounded-lg shadow-lg mb-8 transition duration-200"
+      >
+        Go to home
+      </button>
+    </div>
+
 
 
       {/* Back to Home Button */}

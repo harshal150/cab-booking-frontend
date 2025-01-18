@@ -276,7 +276,12 @@ const PassengersDetails = () => {
   
       // Make API call
       const response = await axios.get(apiUrl);
-  
+      console.log("Sending Start OTP and Reading:", {
+        driverName,
+        driverMobile,
+        startReading,
+        otp,
+      });
       if (response.status === 200) {
         // Store the generated OTP in localStorage with a unique key
         localStorage.setItem(`otp_${driverMobile}`, otp);
@@ -307,6 +312,12 @@ const PassengersDetails = () => {
   
       // Make API call
       const response = await axios.get(apiUrl);
+      console.log("Sending End OTP and Reading:", {
+        driverName,
+        driverMobile,
+        endReading,
+        otp,
+      });
   
       if (response.status === 200) {
         // Store the generated OTP in localStorage with a unique key
