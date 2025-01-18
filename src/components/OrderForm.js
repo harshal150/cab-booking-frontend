@@ -283,6 +283,17 @@ const OrderForm = () => {
       sessionStorage.setItem("rideTime", formData.timing);
       sessionStorage.setItem("driverName", selectedCar?.assigned_driver_name);
       sessionStorage.setItem("driverMobile", selectedCar?.assigned_driver_mobile);
+
+
+
+      console.log("Session Storage Values:");
+console.log("Booking ID:", latestBooking.booking_id);
+console.log("Mobile Number:", mobileNumber);
+console.log("User Name:", modalFormData.name);
+console.log("Ride Date:", formData.date);
+console.log("Ride Time:", formData.timing);
+console.log("Driver Name:", selectedCar?.assigned_driver_name);
+console.log("Driver Mobile:", selectedCar?.assigned_driver_mobile);
   
       // Update car status to "not available"
       await updateCarStatus(selectedCar.car_id, "not available", formData.date);

@@ -190,73 +190,137 @@ const PassengersDetails = () => {
   };
   
 
+  // const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
+  //   try {
+  //     if (!startReading || !otp) {
+  //       alert("Start reading or OTP is missing!");
+  //       return;
+  //     }
+  //     console.log("otp ride start", otp);
+
+  //     // Replace template variables
+  //     const message = encodeURIComponent(
+  //       `Dear Driver, 
+  //     Kindly confirm the meter reading: ${startReading} and share the OTP ${otp} with the passenger to start the ride. 
+  //     Jhansi Smart City - Larsen and Toubro Limited`
+  //     );
+
+  //     // API URL
+  //     const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+
+  //     // Make API call
+  //     const response = await axios.get(apiUrl);
+
+  //     if (response.status === 200) {
+  //       // Store the generated OTP in localStorage with a unique key
+  //       localStorage.setItem(`otp_${driverMobile}`, otp);
+  //       alert("Start OTP sent successfully!");
+  //     } else {
+  //       alert("Failed to send OTP. Please try again.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending Start OTP:", error);
+  //     alert("An error occurred while sending Start OTP.");
+  //   }
+  // };
+
+  // const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
+  //   try {
+  //     if (!endReading || !otp) {
+  //       alert("End reading or OTP is missing!");
+  //       return;
+  //     }
+
+  //     // Replace template variables
+  //     const message = encodeURIComponent(
+  //       `Dear Driver, 
+  //     Kindly confirm the meter reading: ${endReading} and share the OTP ${otp} with the passenger to end the ride. 
+  //     Jhansi Smart City - Larsen and Toubro Limited`
+  //     );
+
+  //     // API URL
+  //     const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
+
+  //     // Make API call
+  //     const response = await axios.get(apiUrl);
+
+  //     if (response.status === 200) {
+  //       // Store the generated OTP in localStorage with a unique key
+  //       localStorage.setItem(`end_otp_${driverMobile}`, otp);
+  //       alert("End OTP sent successfully!");
+  //     } else {
+  //       alert("Failed to send OTP. Please try again.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending End OTP:", error);
+  //     alert("An error occurred while sending End OTP.");
+  //   }
+  // };
+
+
+
   const sendStartOtp = async (driverName, driverMobile, startReading, otp) => {
     try {
       if (!startReading || !otp) {
         alert("Start reading or OTP is missing!");
         return;
       }
-      console.log("otp ride start", otp);
-
-      // Replace template variables
-      const message = encodeURIComponent(
-        `Dear Driver, 
-      Kindly confirm the meter reading: ${startReading} and share the OTP ${otp} with the passenger to start the ride. 
-      Jhansi Smart City - Larsen and Toubro Limited`
-      );
-
+  
+      // Construct message for ride start
+      const message = `Dear Driver, Kindly confirm the meter reading: ${startReading} and share OTP ${otp} with the passenger to start the ride. Jhansi Smart City - Larsen and Toubro Limited`;
+  
       // API URL
-      const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
-
+      const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(
+        driverMobile
+      )}&message=${encodeURIComponent(message)}`;
+  
       // Make API call
       const response = await axios.get(apiUrl);
-
+  
       if (response.status === 200) {
         // Store the generated OTP in localStorage with a unique key
         localStorage.setItem(`otp_${driverMobile}`, otp);
         alert("Start OTP sent successfully!");
       } else {
-        alert("Failed to send OTP. Please try again.");
+        alert("Failed to send Start OTP. Please try again.");
       }
     } catch (error) {
       console.error("Error sending Start OTP:", error);
       alert("An error occurred while sending Start OTP.");
     }
   };
-
+  
   const sendEndOtp = async (driverName, driverMobile, endReading, otp) => {
     try {
       if (!endReading || !otp) {
         alert("End reading or OTP is missing!");
         return;
       }
-
-      // Replace template variables
-      const message = encodeURIComponent(
-        `Dear Driver, 
-      Kindly confirm the meter reading: ${endReading} and share the OTP ${otp} with the passenger to end the ride. 
-      Jhansi Smart City - Larsen and Toubro Limited`
-      );
-
+  
+      // Construct message for ride end
+      const message = `Dear Driver, Kindly confirm the meter reading: ${endReading} and share OTP ${otp} with the passenger to end the ride. Jhansi Smart City - Larsen and Toubro Limited`;
+  
       // API URL
-      const apiUrl = `https://msg.icloudsms.com/rest/services/sendSMS/sendGroupSms?AUTH_KEY=afd0cabb62aac3aa6d1cf427dfb12af1&message=${message}&senderId=JSICCC&routeId=1&mobileNos=${driverMobile}&smsContentType=english`;
-
+      const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(
+        driverMobile
+      )}&message=${encodeURIComponent(message)}`;
+  
       // Make API call
       const response = await axios.get(apiUrl);
-
+  
       if (response.status === 200) {
         // Store the generated OTP in localStorage with a unique key
         localStorage.setItem(`end_otp_${driverMobile}`, otp);
         alert("End OTP sent successfully!");
       } else {
-        alert("Failed to send OTP. Please try again.");
+        alert("Failed to send End OTP. Please try again.");
       }
     } catch (error) {
       console.error("Error sending End OTP:", error);
       alert("An error occurred while sending End OTP.");
     }
   };
-
+  
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}

@@ -142,6 +142,9 @@
 // export default OTPLogin;
 
 
+
+
+
 import { useState } from "react";
 
 const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
@@ -155,75 +158,65 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
       setErrorMessage("Please enter a valid 10-digit mobile number.");
       return;
     }
-
+  
     setErrorMessage("");
-
+  
     try {
-      const mobileNumber = "8554068494";
-      const otp = "8888"; // Replace this with the dynamically generated OTP if needed
-      const smsmessage = `OTP to login JSCL Mobile App is ${otp}`;
-      
+      // Generate a random 4-digit OTP
+      const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      const smsMessage = `OTP to login JSCL Mobile App is ${generatedOtp}`;
+  console.log(generatedOtp)
+      // Store the OTP locally for verification later
+      localStorage.setItem("generatedOtp", generatedOtp);
+  
       // Construct the URL with query parameters
-      const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(mobileNumber)}&message=${encodeURIComponent(smsmessage)}`;
-      
+      const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(
+        mobileNumber
+      )}&message=${encodeURIComponent(smsMessage)}`;
+  
+      // Send the OTP via the API
       const response = await fetch(apiUrl, {
-          method: "GET",
+        method: "GET",
       });
   
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+  
       const responseData = await response.json();
       console.log("OTP Send API Response:", responseData);
-      setIsOtpSent(true); 
-      // if (responseData.message === "OTP sent successfully") {
-      //   setIsOtpSent(true); // Move to OTP input step
-      // } else {
-      //   setErrorMessage("Failed to send OTP. Please try again.");
-      // }
+      setIsOtpSent(true); // Move to OTP input step
+      // Check the response and update the state accordingly
+    
     } catch (error) {
       console.error("Error sending OTP:", error);
       setErrorMessage("An error occurred while sending the OTP. Please try again.");
     }
   };
+  
 
   // Verify OTP via the backend API
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = () => {
     const enteredOtp = otp.join(""); // Combine OTP digits into a single string
-
+  
     if (enteredOtp.length !== 4 || !/^\d{4}$/.test(enteredOtp)) {
       setErrorMessage("Please enter a valid 4-digit OTP.");
       return;
     }
-
-    try {
-      const response = await fetch("https://cabapi.payplatter.in/api/otp/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mobileNumber, otp: enteredOtp }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      console.log("OTP Verify API Response:", responseData);
-
-      if (responseData.message === "OTP verified successfully") {
-        setErrorMessage("");
-        onClose(); // Proceed to the next step or close the OTP screen
-      } else {
-        setErrorMessage(responseData.message || "Failed to verify OTP. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      setErrorMessage("An error occurred while verifying the OTP. Please try again.");
+  
+    // Retrieve the generated OTP from localStorage
+    const storedOtp = localStorage.getItem("generatedOtp");
+  
+    if (enteredOtp === storedOtp) {
+      setErrorMessage(""); // Clear error messages
+      alert("OTP verified successfully!"); // Or handle successful login
+      localStorage.removeItem("generatedOtp"); // Clear OTP after successful verification
+      onClose(); // Proceed to the next step or close the OTP screen
+    } else {
+      setErrorMessage("Invalid OTP. Please try again.");
     }
   };
+  
 
   // Handle OTP digit input changes
   const handleOtpChange = (value, index) => {
