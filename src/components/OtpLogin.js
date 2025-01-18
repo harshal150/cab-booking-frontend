@@ -159,26 +159,29 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
     setErrorMessage("");
 
     try {
-      const response = await fetch("https://cabapi.payplatter.in/api/otp/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mobileNumber }),
+      const mobileNumber = "8554068494";
+      const otp = "8888"; // Replace this with the dynamically generated OTP if needed
+      const smsmessage = `OTP to login JSCL Mobile App is ${otp}`;
+      
+      // Construct the URL with query parameters
+      const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(mobileNumber)}&message=${encodeURIComponent(smsmessage)}`;
+      
+      const response = await fetch(apiUrl, {
+          method: "GET",
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const responseData = await response.json();
       console.log("OTP Send API Response:", responseData);
-
-      if (responseData.message === "OTP sent successfully") {
-        setIsOtpSent(true); // Move to OTP input step
-      } else {
-        setErrorMessage("Failed to send OTP. Please try again.");
-      }
+      setIsOtpSent(true); 
+      // if (responseData.message === "OTP sent successfully") {
+      //   setIsOtpSent(true); // Move to OTP input step
+      // } else {
+      //   setErrorMessage("Failed to send OTP. Please try again.");
+      // }
     } catch (error) {
       console.error("Error sending OTP:", error);
       setErrorMessage("An error occurred while sending the OTP. Please try again.");
