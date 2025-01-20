@@ -25,14 +25,23 @@ const PassengersDetails = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
+        // Retrieve the mobile number from sessionStorage
+        const mobileNumber = sessionStorage.getItem("updatedmobilenumber");
+
+        if (!mobileNumber) {
+          console.warn("No mobile number found in sessionStorage.");
+          return;
+        }
+
         const response = await axios.get(
           "https://cabapi.payplatter.in/api/bookings"
         );
-        const data = response.data;
+        const data = response.data || [];
 
-        // Filter bookings based on the mobile number
+        // Filter bookings based on the mobile number and booking status
         const filteredBookings = data.filter(
-          (booking) => booking.user_mobile_no === mobileNumber
+          (booking) =>
+            booking.user_mobile_no === mobileNumber && booking.status === "booked"
         );
 
         setBookings(filteredBookings);
@@ -42,11 +51,10 @@ const PassengersDetails = () => {
       }
     };
 
-    if (mobileNumber) {
-      fetchBookings(); // Fetch bookings only when a mobile number is provided
-    }
-  }, [mobileNumber]); // Re-run the effect when the mobile number changes
-
+    fetchBookings(); // Call the function to fetch and filter bookings
+  }, []); 
+ 
+ 
   const formatDate = (isoDate) => {
     const date = new Date(isoDate);
     const day = date.getDate(); // Day without leading zero
@@ -120,7 +128,8 @@ const PassengersDetails = () => {
 
   const handlePayment = (booking) => {
     console.log("Booking object in handlePayment:", booking); // Debug log
-
+    const cabId = booking.cab_id;
+    console.log(cabId)
     try {
       // Constants
       // const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
@@ -174,6 +183,8 @@ const PassengersDetails = () => {
         user_id: booking.user_id,
         user_name: booking.user_name,
         user_mobile_no: booking.user_mobile_no,
+        cabId: cabId,
+    
       };
   
       localStorage.setItem("bookingDetails", JSON.stringify(bookingDetails));
