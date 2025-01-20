@@ -585,6 +585,9 @@ const OrderForm = () => {
                 5) ⁠Maximum wait time during journey is 10 mins. After that you
                 have to book cab again.
               </li>
+              <li>
+                6) Toll charges are not included in the booking
+              </li>
             </ol>
           </div>
         </form>
