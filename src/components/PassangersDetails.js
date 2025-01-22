@@ -434,7 +434,7 @@ console.log(mobileNumber)
         return;
       }
   
-      const response = await axios.get("hhttps://cabapi.payplatter.in/api/bookings");
+      const response = await axios.get("https://cabapi.payplatter.in/api/bookings");
       const data = response.data || [];
   
       // Filter bookings for "My Rides"
