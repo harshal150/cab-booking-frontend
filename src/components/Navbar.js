@@ -207,7 +207,8 @@ const Navbar = () => {
 
       localStorage.setItem("generatedOtp", generatedOtp);
       sessionStorage.setItem("updatedmobilenumber", mobileNumber);
-
+      console.log(mobileNumber)
+// console.log("stored mob number" ,sessionStorage.setItem("updatedmobilenumber", mobileNumber))
       const apiUrl = `https://payplatter.in/otpSend.php?mobileNos=${encodeURIComponent(
         mobileNumber
       )}&message=${encodeURIComponent(smsMessage)}`;

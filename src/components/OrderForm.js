@@ -22,7 +22,8 @@ const OrderForm = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // Confirmation box visibility
   const [mobileNumber, setMobileNumber] = useState(""); // Shared state for mobile number
   const [newUser, setNewUser] = useState(null);
-
+  const [loading, setLoading] = useState(false); // To manage button state
+  const [bookingId, setBookingId] = useState(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -102,7 +103,6 @@ const OrderForm = () => {
   });
 
   const handlePayNow = async () => {
-    // Reset errors before checking
     setFormErrors({
       name: "",
       email: "",
@@ -145,15 +145,14 @@ const OrderForm = () => {
     const payload = {
       user_name: modalFormData.name,
       email: modalFormData.email,
-      mobile_no: mobileNumber, // Use the mobile number from OTP modal
-      num_passengers: modalFormData.num_passengers, // Include num_passengers
+      mobile_no: mobileNumber,
+      num_passengers: modalFormData.num_passengers,
     };
 
-   sessionStorage.setItem("updatedmobilenumber", payload.mobile_no);
-   console.log(payload.mobile_no)
+    sessionStorage.setItem("updatedmobilenumber", payload.mobile_no);
 
     try {
-      // Proceed with the user creation and booking submission logic
+      // Create user
       const createResponse = await fetch(
         "https://cabapi.payplatter.in/api/users",
         {
@@ -171,36 +170,68 @@ const OrderForm = () => {
 
       const createdUser = await createResponse.json();
       console.log("User created:", createdUser);
+      const userId = createdUser?.userId;
 
-      // Fetch all users after creating the new user
-      const allUsersResponse = await fetch(
-        "https://cabapi.payplatter.in/api/users"
-      );
-      if (!allUsersResponse.ok) {
-        throw new Error("Failed to fetch all users");
+      console.log("User created id:", userId);
+
+      // Prepare booking data
+      const bookingData = {
+        booking_date: formData.date,
+        booking_time: formData.timing,
+        cab_id: selectedCar.car_id,
+        driver_id: selectedCar.assigned_driver_id,
+        user_id: userId,
+        status: "Pending",
+      };
+
+      // Call createBooking and store the result
+      const bookingResponse = await createBooking(bookingData);
+
+      if (bookingResponse) {
+        setIsModalOpen(false);
+        setIsConfirmationOpen(true);
       }
-
-      const allUsers = await allUsersResponse.json();
-
-      // Find the newly created user (e.g., by mobile number or email)
-      const userInfo = allUsers.find(
-        (user) =>
-          user.mobile_no === payload.mobile_no && user.email === payload.email
-      );
-
-      if (!userInfo) {
-        throw new Error("Newly created user not found in the list");
-      }
-
-      // Store newly created user info in state
-      setNewUser(userInfo);
-
-      console.log("Fetched New User Info:", userInfo);
-      setIsModalOpen(false);
-      setIsConfirmationOpen(true);
     } catch (error) {
       console.error("Error:", error);
       alert(error.message || "An error occurred. Please try again.");
+    }
+  };
+
+  const createBooking = async (bookingData) => {
+    try {
+      // Create the booking
+      const response = await fetch("https://cabapi.payplatter.in/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create booking");
+      }
+
+      // Parse the booking response
+      const bookingResponse = await response.json();
+      console.log("Booking created successfully:", bookingResponse);
+
+      // Extract the bookingId from the response
+      const bookingId = bookingResponse.bookingId;
+      setBookingId(bookingId);
+      if (bookingId) {
+        console.log("Generated Booking ID:", bookingId);
+
+        // Store the booking ID in localStorage
+        localStorage.setItem("pendingBookingId", bookingId);
+      } else {
+        console.error("Booking ID not found in response");
+      }
+
+      return bookingResponse;
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      alert(error.message || "An error occurred while creating the booking.");
     }
   };
 
@@ -230,15 +261,14 @@ const OrderForm = () => {
     return formattedDate.replace(",", ""); // Remove any unwanted commas
   };
 
-
-
-
-
   const submitBooking = async () => {
+    setLoading(true); // Disable button when clicked
     const paymentAmount = 25.0; // Fixed payment amount
-    const txnId = `txn_${Date.now()}`;
+    // const txnId = `txn_${Date.now()}`;
+    const txnId = bookingId;
+    console.log(txnId);
     const cabName = selectedCar?.name || "Cab Booking";
-  
+
     const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
     const merchantCode = "JHA434";
     const username = "MJHANS434";
@@ -248,8 +278,8 @@ const OrderForm = () => {
     const successURL = `https://cab.payplatter.in/payment-success?txnId=${txnId}`;
     const failureURL = `https://cab.payplatter.in/payment-failure?txnId=${txnId}`;
 
-
-    // const RouterDomain = "https://test.payplatter.in/Router/initiateTransaction";
+    // const RouterDomain =
+    //   "https://test.payplatter.in/Router/initiateTransaction";
     // const merchantCode = "THE265";
     // const username = "MPANKA261";
     // const password = "[C@445aba30";
@@ -257,9 +287,11 @@ const OrderForm = () => {
     // const privateValue = "lo4syhqHnRjm4L0T";
     // const successURL = `http://localhost:3000/payment-success?txnId=${txnId}`;
     // const failureURL = `http://localhost:3000/payment-failure?txnId=${txnId}`;
-  
+
     const encryptData = (data, iv, key) => {
-      const keyBytes = CryptoJS.enc.Utf8.parse(key.padEnd(16, "0").slice(0, 16));
+      const keyBytes = CryptoJS.enc.Utf8.parse(
+        key.padEnd(16, "0").slice(0, 16)
+      );
       const ivBytes = CryptoJS.enc.Utf8.parse(iv);
       const encrypted = CryptoJS.AES.encrypt(data, keyBytes, {
         iv: ivBytes,
@@ -268,19 +300,22 @@ const OrderForm = () => {
       });
       return encrypted.toString();
     };
-  
+
     // Construct payment query
     let query = `?mcode=${merchantCode}&uname=${username}&psw=${password}&amount=${paymentAmount.toFixed(
       2
     )}&mtxnId=${txnId}&pfname=${cabName}&surl=${successURL}&furl=${failureURL}`;
-  
+
     // Encrypt the query
-    const encryptedQuery = encryptData(query, privateValue, privateKey).replace(/\+/g, "%2B");
-  
+    const encryptedQuery = encryptData(query, privateValue, privateKey).replace(
+      /\+/g,
+      "%2B"
+    );
+
     // Redirect to the payment gateway
     const paymentUrl = `${RouterDomain}?query=${encryptedQuery}&mcode=${merchantCode}`;
     console.log("Redirecting to Payment URL:", paymentUrl);
-  
+
     // Save minimal data to sessionStorage for use after payment
     sessionStorage.setItem("txnId", txnId);
     sessionStorage.setItem("cabId", selectedCar?.car_id);
@@ -288,13 +323,14 @@ const OrderForm = () => {
     sessionStorage.setItem("userId", newUser?.id);
     sessionStorage.setItem("rideDate", formData.date);
     sessionStorage.setItem("rideTime", formData.timing);
-   
-  
+
     // Redirect to payment
     window.location.href = paymentUrl;
+    setTimeout(() => {
+      window.location.href = paymentUrl;
+      setLoading(false); // Re-enable button after redirection
+    }, 9000); // Simulate delay before redirection
   };
-  
-  
 
   // const submitBooking = async () => {
   //   const payload = {
@@ -477,31 +513,31 @@ const OrderForm = () => {
           </h1>
 
           <div>
-  <label
-    className="block text-gray-700 font-medium mb-1"
-    htmlFor="date"
-  >
-    Journey Date
-  </label>
-  <input
-    type="date"
-    id="date"
-    name="date"
-    value={formData.date}
-    onChange={handleChange}
-    required
-    min={new Date().toISOString().split("T")[0]} // Set the minimum date to today
-    className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
-    onInput={(e) => {
-      const date = new Date(e.target.value);
-      if (date.getDay() === 1) {
-        e.target.setCustomValidity("Cabs Unavailable on Monday");
-      } else {
-        e.target.setCustomValidity("");
-      }
-    }}
-  />
-</div>
+            <label
+              className="block text-gray-700 font-medium mb-1"
+              htmlFor="date"
+            >
+              Journey Date
+            </label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+              min={new Date().toISOString().split("T")[0]} // Set the minimum date to today
+              className="py-2 px-3 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none shadow-sm transition"
+              onInput={(e) => {
+                const date = new Date(e.target.value);
+                if (date.getDay() === 1) {
+                  e.target.setCustomValidity("Cabs Unavailable on Monday");
+                } else {
+                  e.target.setCustomValidity("");
+                }
+              }}
+            />
+          </div>
 
           {/* Time */}
           <div>
@@ -509,7 +545,7 @@ const OrderForm = () => {
               className="block text-gray-700 font-medium mb-1"
               htmlFor="timing"
             >
-              Journey Time
+              Journey start time
             </label>
             <input
               type="time"
@@ -565,9 +601,7 @@ const OrderForm = () => {
           <div className="font-normal justify-start">
             <p className="font-semibold">Please note the following:</p>
             <ol>
-            <li>
-                1) Cabs Unavailable on Monday
-              </li>
+              <li>1) Cabs Unavailable on Monday</li>
               <li>
                 2) Booking charge is Rs 25/-, which will NOT be adjusted to the
                 total fare at the end of trip. If booking is cancelled, then
@@ -585,9 +619,7 @@ const OrderForm = () => {
                 5) ⁠Maximum wait time during journey is 10 mins. After that you
                 have to book cab again.
               </li>
-              <li>
-                6) Toll charges are not included in the booking
-              </li>
+              <li>6) Toll charges are not included in the booking</li>
             </ol>
           </div>
         </form>
@@ -881,10 +913,18 @@ const OrderForm = () => {
             {/* Buttons Section */}
             <div className="mt-6 flex flex-col md:flex-row gap-3">
               <button
-                onClick={submitBooking}
-                className="w-full py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md"
+                onClick={() => {
+                  submitBooking();
+                  setLoading(true); // Disable the button and change its color after clicking
+                }}
+                disabled={loading} // Disable only after clicking
+                className={`w-full py-2 text-white font-semibold rounded-lg transition-all duration-300 shadow-md ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed" // Gray background when loading
+                    : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                }`}
               >
-                Confirm and Pay Now
+                {loading ? "Processing..." : "Confirm and Pay Now"}
               </button>
             </div>
           </div>
