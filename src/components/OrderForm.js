@@ -269,6 +269,20 @@ const OrderForm = () => {
     console.log(txnId);
     const cabName = selectedCar?.name || "Cab Booking";
 
+
+
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const randomDigits = Math.floor(Math.random() * 90 + 10); // Two-digit random number
+    const rideId = `${day}${month}${year}${seconds}${randomDigits}`;
+
+
+
+
+
     const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
     const merchantCode = "JHA434";
     const username = "MJHANS434";

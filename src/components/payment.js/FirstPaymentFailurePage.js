@@ -302,6 +302,7 @@ const decryptData = (encryptedData, iv, key) => {
 
     // const privateKey = "7R7WkmrgZilbokoB";
     // const privateValue = "x8mYTSawyBGpM9iq";
+    console.log(encryptedQuery)
 
     const privateKey ="3md6uPicmLlZmlVG";
     const privateValue ="xVJSbcqImp2utNzi";
@@ -309,6 +310,7 @@ const decryptData = (encryptedData, iv, key) => {
     let decryptedQuery;
     try {
       decryptedQuery = decryptData(encryptedQuery, privateValue, privateKey);
+      console.log(decryptedQuery);
     } catch (error) {
       console.error("Failed to decrypt query:", error);
       bookingInProgress.current = false;
@@ -320,8 +322,13 @@ const decryptData = (encryptedData, iv, key) => {
     // Extract required data
     const txn_id = queryParams.get("transId");
     const status = queryParams.get("status") || "Failed";
-    const amount = parseFloat(queryParams.get("amount"));
+    const amount = parseFloat(queryParams.get("requestedAmount"));
     const bookingId = queryParams.get("mtxnId");
+
+
+    // pgTransId=null&transId=230125890311&amount=null&requestedAmount=25.0&mtxnId=362&firstName=Tata Tiago EV-UP93CT5232&
+    // lastName=null&payInstrument=null&email=&contact=&respCode=0999&mcode=JHA434&txnDate=23-01-2025 14:25:12&
+    // status=pending&rmsg=RC_EAZYPAY_E00335&udf1=null&udf2=null&udf3=null&udf4=null&udf5=null&udf6=null&udf7=nul
 
     if (!txn_id || !amount || !bookingId) {
       console.error("Incomplete booking details detected.");
