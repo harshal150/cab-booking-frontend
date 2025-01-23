@@ -332,7 +332,7 @@ console.log(encryptedQuery)
       </div>
   
       <button
-        // onClick={() => navigate("/passangers", { replace: true })}
+        onClick={() => navigate("/passangers")}
         className="py-2 px-6 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md transition duration-200 mt-6"
       >
         Booking Details
