@@ -34,8 +34,12 @@ const FinalPaymentSuccess = () => {
       // const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
       // const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
 
-      const privateKey = "7R7WkmrgZilbokoB";
-      const privateValue = "x8mYTSawyBGpM9iq";
+      // const privateKey = "7R7WkmrgZilbokoB";
+      // const privateValue = "x8mYTSawyBGpM9iq";
+
+      
+    const privateKey ="3md6uPicmLlZmlVG";
+    const privateValue ="xVJSbcqImp2utNzi";
 
       let decryptedQuery = null;
       try {

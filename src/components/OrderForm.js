@@ -275,6 +275,8 @@ const OrderForm = () => {
     const password = "[C@1ba15716";
     const privateKey = "7R7WkmrgZilbokoB";
     const privateValue = "x8mYTSawyBGpM9iq";
+    // const privateKey = "3md6uPicmLlZmlVG";
+    // const privateValue = "xVJSbcqImp2utNzi";
     const successURL = `https://cab.payplatter.in/payment-success?txnId=${txnId}`;
     const failureURL = `https://cab.payplatter.in/payment-failure?txnId=${txnId}`;
 
