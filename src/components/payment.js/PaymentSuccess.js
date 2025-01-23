@@ -13,6 +13,7 @@ const PaymentSuccess = () => {
 
   const [decryptedQuery, setDecryptedQuery] = useState(null); // State for decrypted query
   const [latestBooking, setLatestBooking] = useState(null);   // State for latest booking
+  const [newstatus, setStatus] = useState(null);   // State for latest booking
 
 
 
@@ -67,6 +68,7 @@ console.log(encryptedQuery)
       const amount = parseFloat(queryParams.get("amount"));
       const bookingId = queryParams.get("mtxnId");
       console.log(status)
+      setStatus(status)
   
     } catch (error) {
       console.error("Failed to decrypt query:", error);
@@ -116,7 +118,7 @@ console.log(encryptedQuery)
 
     // Extract required data
     const txn_id = queryParams.get("transId");
-    const status = queryParams.get("status") || "Failed";
+    const status = newstatus;
     const amount = parseFloat(queryParams.get("amount"));
     const bookingId = queryParams.get("mtxnId");
 
