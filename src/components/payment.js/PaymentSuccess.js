@@ -96,6 +96,7 @@ console.log(encryptedQuery)
 
 
   const handlePaymentSuccess = async () => {
+    console.log("first")
     if (bookingInProgress.current) {
       console.warn("Booking already in progress. Skipping duplicate call.");
       return;
@@ -104,7 +105,6 @@ console.log(encryptedQuery)
   
     const txnId = new URLSearchParams(window.location.search).get("txnId");
     const payment_method = new URLSearchParams(window.location.search).get("payment_method");
-    console.log(payment_method)
   
     if (!txnId) {
       alert("Invalid transaction. Please try again.");
