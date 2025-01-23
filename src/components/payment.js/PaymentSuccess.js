@@ -319,16 +319,7 @@ console.log(payload)
   };
 
   useEffect(() => {
-    const txnId = new URLSearchParams(window.location.search).get("txnId");
 
-    // Check if the user has already visited this page
-    if (sessionStorage.getItem(`visited_${txnId}`)) {
-      console.log("Already visited PaymentSuccess page. Skipping logic.");
-      return;
-    }
-  
-    // Mark as visited
-    sessionStorage.setItem(`visited_${txnId}`, true);
   
   
     handlePaymentSuccess();
