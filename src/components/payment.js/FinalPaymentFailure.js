@@ -51,8 +51,11 @@ const FinalPaymentFailure = () => {
   useEffect(() => {
     const fetchTransactionDetails = async () => {
       const encryptedQuery = new URLSearchParams(window.location.search).get("query");
-      const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
-      const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
+      // const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
+      // const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
+
+      const privateKey = "7R7WkmrgZilbokoB";
+      const privateValue = "x8mYTSawyBGpM9iq";
 
       try {
         // Decrypt the query
