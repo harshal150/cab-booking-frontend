@@ -24,11 +24,7 @@ const FinalPaymentSuccess = () => {
 
   useEffect(() => {
 
-    if (sessionStorage.getItem("finalPaymentSuccessAccessed")) {
-      console.log("Page already accessed. Skipping duplicate operations.");
-      return;
-    }
-    sessionStorage.setItem("finalPaymentSuccessAccessed", "true");
+ 
     const fetchTransactionDetails = async () => {
       const encryptedQuery = new URLSearchParams(window.location.search).get("query");
       // const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
@@ -76,7 +72,11 @@ const FinalPaymentSuccess = () => {
           Amount: amount,
         }));
         // Update transaction using API call
-        const transactionId = localStorage.getItem("transactiongetid");
+        const transactionId = localStorage.getItem("transactiongetid"); // Retrieve stored transaction ID
+        if (!transactionId) {
+          alert("Transaction ID not found. Please try again.");
+          return;
+        }
         console.log(transactionId)
         if (transactionId) {
           const updatePayload = {
@@ -136,7 +136,7 @@ const FinalPaymentSuccess = () => {
   };
 
   const goToHome = () => {
-    navigate("/", { replace: true });
+    navigate("/");
   };
 
   return (

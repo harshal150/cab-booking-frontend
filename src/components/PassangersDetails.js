@@ -1248,10 +1248,13 @@ console.log(mobileNumber)
         const calculatedAmount = readingDifference * rate;
         setcalculatedNewAmount(calculatedAmount)
         console.log("Calculated amount", calculatedAmount);
-
+        console.log("transactionId ", transactionId);
+        console.log("readingDifference ", readingDifference);
+        console.log("end_reading ", endReadingValue);
+            
 
         const transactionUpdateResponse = await axios.put(
-          `https://cabapi.payplatter.in/transactions/${transactionId}`,
+          `https://cabapi.payplatter.in/api/transactions/${transactionId}`,
           {
             end_reading: endReadingValue,
             reading_difference: readingDifference,
@@ -1280,7 +1283,7 @@ console.log(mobileNumber)
       }
     } catch (error) {
       console.error("Error updating ride or transaction:", error);
-      alert("An error occurred. Please try again.");
+     console.log("hiiii")
     }
   }}
   className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
