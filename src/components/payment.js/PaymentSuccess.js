@@ -88,151 +88,99 @@ console.log(encryptedQuery)
 
 
   useEffect(() => {
-  
-    const handlePaymentSuccess = async () => {
-      console.log("first")
-      if (bookingInProgress.current) {
-        console.warn("Booking already in progress. Skipping duplicate call.");
-        return;
-      }
-      bookingInProgress.current = true;
-    
-      const txnId = new URLSearchParams(window.location.search).get("txnId");
-      const payment_method = new URLSearchParams(window.location.search).get("payment_method");
-    
-      if (!txnId) {
-        alert("Invalid transaction. Please try again.");
-        bookingInProgress.current = false;
-        return;
-      }
-  
-  
-      const encryptedQuery = new URLSearchParams(window.location.search).get("query");
-      // const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
-      // const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
-  
-      const privateKey = "7R7WkmrgZilbokoB";
-      const privateValue = "x8mYTSawyBGpM9iq";
-      let decryptedQuery;
+    const fetchAndHandlePaymentSuccess = async () => {
       try {
-        decryptedQuery = decryptData(encryptedQuery, privateValue, privateKey);
+        // Step 1: Extract encrypted query from URL
+        const encryptedQuery = new URLSearchParams(window.location.search).get("query");
+        if (!encryptedQuery) {
+          console.error("No query parameter found in URL.");
+          return;
+        }
+  
+        console.log(encryptedQuery);
+  
+        // Step 2: Define decryption keys
+        const privateKey = "3md6uPicmLlZmlVG";
+        const privateValue = "xVJSbcqImp2utNzi";
+  
+        // Step 3: Decrypt the query
+        const decryptedQuery = decryptData(encryptedQuery, privateValue, privateKey);
+        console.log(decryptedQuery);
+  
+        const queryParams = new URLSearchParams(decryptedQuery);
+        const txn_id = queryParams.get("transId");
+        const status = queryParams.get("status") || "pending";
+        const amount = parseFloat(queryParams.get("amount"));
+        const bookingId = queryParams.get("mtxnId");
+  
+        console.log({ txn_id, status, amount, bookingId });
+  
+        if (!txn_id || !amount || !bookingId) {
+          console.error("Incomplete booking details detected.");
+          alert("Booking details are incomplete. Please try again.");
+          return;
+        }
+  
+        // Call the handlePaymentSuccess function
+        await handlePaymentSuccess({ txn_id, status, amount, bookingId });
       } catch (error) {
         console.error("Failed to decrypt query:", error);
-        bookingInProgress.current = false;
-        return;
-      }
-  
-      const queryParams = new URLSearchParams(decryptedQuery);
-  
-      // Extract required data
-      const txn_id = newtxnId;
-      const status = newstatus;
-      const amount = newAmount;
-      const bookingId = newbooking;
-  
-    console.log(status)
-    console.log(txn_id)
-    console.log(amount)
-    console.log(bookingId)
-    
-      // Retrieve sessionStorage data
-      const cabId = sessionStorage.getItem("cabId");
-      const driverId = sessionStorage.getItem("driverId");
-      const userId = sessionStorage.getItem("userId");
-      const rideDate = sessionStorage.getItem("rideDate");
-      const rideTime = sessionStorage.getItem("rideTime");
-      // const amount = sessionStorage.getItem("amount");
-     
-    
-      console.log({
-        cabId,
-        driverId,
-        userId,
-        rideDate,
-        rideTime,
-        amount,
-      }); // Log sessionStorage data for debugging
-    
-      if (!txn_id || !amount || !bookingId) {
-        console.error("Incomplete booking details detected.");
-        alert("Booking details are incomplete. Please try again.");
-        bookingInProgress.current = false;
-        return;
-      }
-      const payload = {
-        txn_id,
-        status,
-        amount,
-        bookingId,
-      };
-  console.log(payload)
-  
-      try {
-        // Proceed with booking logic...
-      
-        const response = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-    
-        if (!response.ok) {
-          throw new Error("Failed to create booking.");
-        }
-    
-        console.log("Booking created successfully.");
-    
-        // Fetch latest booking details and proceed with transaction submission
-        const fetchAllBookingsResponse = await fetch(
-          `https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`
-        );
-        
-        const allBookings = await fetchAllBookingsResponse.json(); // Fetch the booking data
-        console.log("Fetched booking data:", allBookings);
-        
-        // Directly assign the fetched booking data to latestBooking
-        const latestBooking = allBookings; // Since `allBookings` is already a single object
-        setLatestBooking(latestBooking); // Update the state with the booking details
-        
-        console.log("Latest booking set:", latestBooking);
-        
-    
-        if (!latestBooking) {
-          throw new Error("No bookings found.");
-        }
-    
-        // const transactionData = {
-        //   user_id: userId,
-        //   transaction_id: txnId,
-        //   booking_id: latestBooking.booking_id,
-        //   amount: parseFloat(amount),
-        //   transaction_date: new Date().toISOString().split("T")[0],
-        //   payment_method: "Credit Card",
-        //   status: "Success",
-        // };
-    
-        // await submitTransactionDetails(decryptedQuery, latestBooking, userId);
-  
-    
-        sendNotifications(latestBooking);
-    
-       
-      } catch (error) {
-        console.error("Error during booking confirmation:", error);
-        alert("An error occurred while confirming your booking.");
-      } finally {
-        bookingInProgress.current = false;
       }
     };
-
-
-    handlePaymentSuccess()
+  
+    fetchAndHandlePaymentSuccess();
   }, []);
+  
 
 
 
-
-
+  const handlePaymentSuccess = async ({ txn_id, status, amount, bookingId }) => {
+    console.log("Starting payment success process...");
+  
+    if (bookingInProgress.current) {
+      console.warn("Booking already in progress. Skipping duplicate call.");
+      return;
+    }
+    bookingInProgress.current = true;
+  
+    try {
+      // Create payload
+      const payload = { txn_id, status, amount, bookingId };
+      console.log("Payload:", payload);
+  
+      // Update booking via API
+      const response = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update booking.");
+      }
+  
+      console.log("Booking updated successfully.");
+  
+      // Fetch the latest booking details
+      const bookingResponse = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`);
+      const latestBooking = await bookingResponse.json();
+  
+      console.log("Fetched booking data:", latestBooking);
+      setLatestBooking(latestBooking);
+  
+      if (!latestBooking) {
+        throw new Error("No bookings found.");
+      }
+  
+      // Send SMS notifications
+      await sendNotifications(latestBooking);
+    } catch (error) {
+      console.error("Error during booking confirmation:", error);
+      alert("An error occurred while confirming your booking.");
+    } finally {
+      bookingInProgress.current = false;
+    }
+  };
   
 
   const submitTransactionDetails = async (decryptedQuery, latestBooking, userId) => {
