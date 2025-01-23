@@ -616,8 +616,7 @@ const OrderForm = () => {
                 please plan your journey accordingly.
               </li>
               <li>
-                5) ⁠Maximum wait time during journey is 10 mins. After that you
-                have to book cab again.
+                5) Wait time of 10 mins is allowed only when passenger is in cab, else passenger needs to end the trip and rebook cab.
               </li>
               <li>6) Toll charges are not included in the booking</li>
             </ol>

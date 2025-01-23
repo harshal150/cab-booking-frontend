@@ -144,13 +144,13 @@ console.log(payload)
   useEffect(() => {
     handlePaymentFailure();
 
-    const redirectTimeout = setTimeout(() => {
-      navigate("/", { replace: true }); // Replace history entry to prevent going back
-    }, 3000);
+    // const redirectTimeout = setTimeout(() => {
+    //   navigate("/", { replace: true }); // Replace history entry to prevent going back
+    // }, 3000);
 
-    // Cleanup timeout on component unmount
-    return () => clearTimeout(redirectTimeout);
-  }, [navigate]);
+    // // Cleanup timeout on component unmount
+    // return () => clearTimeout(redirectTimeout);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -161,7 +161,7 @@ console.log(payload)
         </p>
         <button
           // onClick={() => navigate("/")}
-          onClick={() => navigate("/", { replace: true })}
+          onClick={() => navigate("/")}
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
         >
           Go to Home

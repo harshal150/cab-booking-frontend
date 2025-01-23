@@ -38,7 +38,7 @@ const PaymentSuccess = () => {
       console.error("No query parameter found in URL.");
       return;
     }
-
+console.log(encryptedQuery)
     // Step 2: Define decryption keys (must match the encryption process)
     const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
     const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
@@ -49,6 +49,7 @@ const PaymentSuccess = () => {
       const parsedQuery = new URLSearchParams(decryptedQuery);
       setDecryptedQuery(parsedQuery); // Update state with the parsed query
       // Step 4: Parse and log the query data
+      console.log(decryptedQuery)
       const queryParams = new URLSearchParams(decryptedQuery);
       queryParams.forEach((value, key) => {
         console.log(`${key}: ${value}`);
@@ -103,7 +104,7 @@ const PaymentSuccess = () => {
     const amount = parseFloat(queryParams.get("amount"));
     const bookingId = queryParams.get("mtxnId");
 
-  
+  console.log(queryParams)
   
     // Retrieve sessionStorage data
     const cabId = sessionStorage.getItem("cabId");
@@ -318,15 +319,15 @@ console.log(payload)
   }, []);
 
 
-  useEffect(() => {
-    const alreadyVisited = sessionStorage.getItem("paymentProcessed");
+  // useEffect(() => {
+  //   const alreadyVisited = sessionStorage.getItem("paymentProcessed");
   
-    if (alreadyVisited) {
-      navigate("/passengers", { replace: true }); // Redirect to Booking Details
-    } else {
-      sessionStorage.setItem("paymentProcessed", true); // Mark as visited
-    }
-  }, []);
+  //   if (alreadyVisited) {
+  //     navigate("/passengers", { replace: true }); // Redirect to Booking Details
+  //   } else {
+  //     sessionStorage.setItem("paymentProcessed", true); // Mark as visited
+  //   }
+  // }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-green-100">
@@ -360,7 +361,7 @@ console.log(payload)
       </div>
   
       <button
-        onClick={() => navigate("/passangers", { replace: true })}
+        // onClick={() => navigate("/passangers", { replace: true })}
         className="py-2 px-6 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md transition duration-200 mt-6"
       >
         Booking Details
