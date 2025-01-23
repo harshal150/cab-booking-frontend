@@ -263,7 +263,7 @@ const OrderForm = () => {
 
   const submitBooking = async () => {
     setLoading(true); // Disable button when clicked
-    const paymentAmount = 25.0; // Fixed payment amount
+    const paymentAmount = 1.0; // Fixed payment amount
     // const txnId = `txn_${Date.now()}`;
     const txnId = bookingId;
     console.log(txnId);
