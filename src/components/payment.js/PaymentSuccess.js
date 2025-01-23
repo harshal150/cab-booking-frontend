@@ -61,6 +61,13 @@ console.log(encryptedQuery)
         console.log(`${key}: ${value}`);
         // console.log(queryParams[0].transaction_id)
       });
+
+      const txn_id = queryParams.get("transId");
+      const status = queryParams.get("status") || "Failed";
+      const amount = parseFloat(queryParams.get("amount"));
+      const bookingId = queryParams.get("mtxnId");
+      console.log(status)
+  
     } catch (error) {
       console.error("Failed to decrypt query:", error);
     }
