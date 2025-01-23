@@ -64,7 +64,7 @@ console.log(encryptedQuery)
       });
 
       const txn_id = queryParams.get("transId");
-      const status = queryParams.get("status") || "Failed";
+      const status = queryParams.get("status") || "pending";
       const amount = parseFloat(queryParams.get("amount"));
       const bookingId = queryParams.get("mtxnId");
       console.log(status)
@@ -122,7 +122,7 @@ console.log(encryptedQuery)
     const amount = parseFloat(queryParams.get("amount"));
     const bookingId = queryParams.get("mtxnId");
 
-  console.log(queryParams)
+  console.log(status)
   
     // Retrieve sessionStorage data
     const cabId = sessionStorage.getItem("cabId");
