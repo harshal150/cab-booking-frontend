@@ -243,12 +243,29 @@ const OrderForm = () => {
     // Proceed with booking logic
   };
 
+
+  // const getCurrentTime = () => {
+  //   const now = new Date();
+  //   const hours = String(now.getHours()).padStart(2, "0");
+  //   const minutes = String(now.getMinutes()).padStart(2, "0");
+  //   return ${hours}:${minutes};
+  // };
+
   const getCurrentTime = () => {
     const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+  
+    // If the current time is earlier than 10:00, return 10:00
+    if (hours < 10) return "10:00";
+  
+    // If the current time is later than 17:00, return 17:00
+    if (hours >= 17) return "17:00";
+  
+    // Otherwise, return the current time in HH:MM format
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
   };
+  
 
   // Set the current time as the default value
   useEffect(() => {
