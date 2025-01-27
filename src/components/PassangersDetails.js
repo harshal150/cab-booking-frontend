@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import CryptoJS from "crypto-js";
-
+import CONFIG from "../config";
 const PassengersDetails = () => {
   const [activeTab, setActiveTab] = useState("myRides");
   const [rideStatus, setRideStatus] = useState({}); // Tracks status per booking
@@ -26,7 +26,7 @@ const PassengersDetails = () => {
   const otpRefs = useRef([]);
   const mobileNumber = sessionStorage.getItem("mobileNumber");
 
-
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
   useEffect(() => {
     fetchMyRides(); // Initial load of bookings
   }, []);
@@ -44,7 +44,7 @@ const PassengersDetails = () => {
 //         }
 
 //         const response = await axios.get(
-//           "hhttps://cabapi.payplatter.in/api/bookings"
+//           "h${DOMAIN}/api/bookings"
 //         );
 //         const data = response.data || [];
 
@@ -398,7 +398,7 @@ console.log("Failure URL:", failureURL);
       }
 
       const response = await axios.get(
-        "https://cabapi.payplatter.in/api/bookings"
+        `${DOMAIN}/api/bookings`
       );
       const data = response.data || [];
 console.log(mobileNumber)
@@ -451,7 +451,7 @@ console.log(mobileNumber)
         return;
       }
   
-      const response = await axios.get("https://cabapi.payplatter.in/api/bookings");
+      const response = await axios.get(`${DOMAIN}/api/bookings`)
       const data = response.data || [];
   
       // Filter bookings for "My Rides"
@@ -562,7 +562,7 @@ console.log(mobileNumber)
     console.log(booking.booking_id)
     try {
       const response = await axios.put(
-        `https://cabapi.payplatter.in/api/bookings/update/${booking.booking_id}`, // API endpoint
+        `${DOMAIN}/api/bookings/update/${booking.booking_id}`, // API endpoint
         {
           ride_status: "running", // Data to update the status
         }
@@ -616,7 +616,7 @@ console.log(mobileNumber)
   onClick={async () => {
     try {
       // Fetch all transactions
-      const response = await axios.get("https://cabapi.payplatter.in/api/transactions");
+      const response = await axios.get(`${DOMAIN}/api/transactions")`
 
       if (response.status === 200) {
         const transactions = response.data; // Array of all transactions
@@ -678,7 +678,7 @@ console.log(mobileNumber)
   onClick={async () => {
     try {
       // Fetch all transactions
-      const response = await axios.get("https://cabapi.payplatter.in/api/transactions");
+      const response = await axios.get(`${DOMAIN}/api/transactions`)
 
       if (response.status === 200) {
         const transactions = response.data; // Array of all transactions
@@ -717,7 +717,7 @@ console.log(mobileNumber)
 
       // Call the API to update the booking status as "ended"
       const bookingUpdateResponse = await axios.put(
-        `https://cabapi.payplatter.in/api/bookings/update/${booking.booking_id}`,
+        `${DOMAIN}/api/bookings/update/${booking.booking_id}`,
         { ride_status: "ended" }
       );
 
@@ -920,7 +920,7 @@ console.log(mobileNumber)
 
       // Make API call to update cab status
       const response = await axios.put(
-        `https://cabapi.payplatter.in/api/cars/${cabId}`,
+        `${DOMAIN}/api/cars/${cabId}`,
         {
           ride_status: "started",
           status: "not available",
@@ -930,7 +930,7 @@ console.log(mobileNumber)
       if (response.status === 200) {
         // Call the API to update the transaction table
         const transactionResponse = await axios.post(
-          "https://cabapi.payplatter.in/api/transactions",
+          `${DOMAIN}/api/transactions`,
           {
             created_date: new Date().toISOString().split("T")[0], // Current date
             user_id: booking.user_id, // Replace with actual user ID
@@ -1000,7 +1000,7 @@ console.log(mobileNumber)
 
                                 // Make API call to update cab status
                                 const response = await axios.put(
-                                  `https://cabapi.payplatter.in/api/cars/${cabId}`,
+                                  `${DOMAIN}/api/cars/${cabId}`,
                                   {
                                     ride_status: "started",
                                     status: "not available",
@@ -1179,7 +1179,7 @@ console.log(mobileNumber)
 
                                 // Make API call to update cab status
                                 const response = await axios.put(
-                                  `https://cabapi.payplatter.in/api/cars/${cabId}`,
+                                  `${DOMAIN}/api/cars/${cabId}`,
                                   {
                                     ride_status: "ended",
                                     status: "available",
@@ -1236,7 +1236,7 @@ console.log(mobileNumber)
 
       // Make API call to update cab status
       const response = await axios.put(
-        `https://cabapi.payplatter.in/api/cars/${cabId}`,
+        `${DOMAIN}/api/cars/${cabId}`,
         {
           ride_status: "ended",
           status: "available",
@@ -1271,7 +1271,7 @@ console.log(mobileNumber)
             
 
         const transactionUpdateResponse = await axios.put(
-          `https://cabapi.payplatter.in/api/transactions/${transactionId}`,
+          `${DOMAIN}/api/transactions/${transactionId}`,
           {
             end_reading: endReadingValue,
             reading_difference: readingDifference,

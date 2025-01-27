@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import CryptoJS from "crypto-js";
 import logo from "../../assets/Logo.png";
+import CONFIG from "../../config";
 
 const FinalPaymentSuccess = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const FinalPaymentSuccess = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const amount = sessionStorage.getItem("fare");
   const txnId = sessionStorage.getItem("txnId");
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
 
   const decryptData = (encryptedData, iv, key) => {
     const keyBytes = CryptoJS.enc.Utf8.parse(key.padEnd(16, "0").slice(0, 16));
@@ -88,7 +90,7 @@ const FinalPaymentSuccess = () => {
           };
           console.log(updatePayload)
 
-          const response = await fetch(`https://cabapi.payplatter.in/api/transactions/aftertransaction/${transactionId}`, {
+          const response = await fetch(`${DOMAIN}/api/transactions/aftertransaction/${transactionId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatePayload),

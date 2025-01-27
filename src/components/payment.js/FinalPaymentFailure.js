@@ -29,13 +29,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
-
+import CONFIG from "../../config";
 const FinalPaymentFailure = () => {
   const navigate = useNavigate();
   const [transactionDetails, setTransactionDetails] = useState(null);
   const [bookingDetails, setBookingDetails] = useState(null);
 
-
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
 
   const decryptData = (encryptedData, iv, key) => {
     const keyBytes = CryptoJS.enc.Utf8.parse(key.padEnd(16, "0").slice(0, 16));
@@ -105,7 +105,7 @@ const FinalPaymentFailure = () => {
           };
           console.log(updatePayload);
 
-          const response = await fetch(`https://cabapi.payplatter.in/api/transactions/aftertransaction/${transactionId}`, {
+          const response = await fetch(`${DOMAIN}/api/transactions/aftertransaction/${transactionId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatePayload),

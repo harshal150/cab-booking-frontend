@@ -4,6 +4,7 @@ import "./common.css";
 import { useNavigate } from "react-router-dom";
 import OTPLogin from "./OtpLogin";
 import CryptoJS from "crypto-js";
+import CONFIG from "../config";
 
 const OrderForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,10 @@ const OrderForm = () => {
     name: "", // For user_name
     email: "", // For email
   });
+const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
+console.log(DOMAIN);
+
+
 
   const [filteredCars, setFilteredCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState(null); // To manage selected car details
@@ -37,7 +42,7 @@ const OrderForm = () => {
 
     try {
       const response = await fetch(
-        `https://cabapi.payplatter.in/api/cars?booking_date=${formData.date}`
+        `${DOMAIN}/api/cars?booking_date=${formData.date}`
       );
 
       if (!response.ok) {
@@ -154,7 +159,7 @@ const OrderForm = () => {
     try {
       // Create user
       const createResponse = await fetch(
-        "https://cabapi.payplatter.in/api/users",
+        `${DOMAIN}/api/users`,
         {
           method: "POST",
           headers: {
@@ -200,7 +205,7 @@ const OrderForm = () => {
   const createBooking = async (bookingData) => {
     try {
       // Create the booking
-      const response = await fetch("https://cabapi.payplatter.in/api/bookings", {
+      const response = await fetch(`${DOMAIN}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -517,7 +522,7 @@ const OrderForm = () => {
   const updateCarStatus = async (carId, status, bookingDate) => {
     try {
       const response = await fetch(
-        `https://cabapi.payplatter.in/api/cars/${carId}`,
+        `${DOMAIN}/api/cars/${carId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

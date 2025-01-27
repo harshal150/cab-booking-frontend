@@ -5,11 +5,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { all } from "axios";
-
+import CONFIG from "../../config";
 const PaymentSuccess = () => {
   const bookingInProgress = useRef(false); // Prevent duplicate API calls
   const navigate = useNavigate();
-
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
 
   const [decryptedQuery, setDecryptedQuery] = useState(null); // State for decrypted query
   const [latestBooking, setLatestBooking] = useState(null);   // State for latest booking
@@ -149,7 +149,7 @@ console.log(encryptedQuery)
       console.log("Payload:", payload);
   
       // Update booking via API
-      const response = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`, {
+      const response = await fetch(`${DOMAIN}/api/bookings/${payload.bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -162,7 +162,7 @@ console.log(encryptedQuery)
       console.log("Booking updated successfully.");
   
       // Fetch the latest booking details
-      const bookingResponse = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`);
+      const bookingResponse = await fetch(`${DOMAIN}/api/bookings/${payload.bookingId}`);
       const latestBooking = await bookingResponse.json();
   
       console.log("Fetched booking data:", latestBooking);
@@ -217,7 +217,7 @@ console.log(encryptedQuery)
       };
   
       // Send the transaction data to the API
-      const response = await fetch("https://cabapi.payplatter.in/api/transactions", {
+      const response = await fetch(`${DOMAIN}/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transactionData),

@@ -219,10 +219,11 @@
 import React, { useEffect, useState ,useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
-
+import CONFIG from "../../config";
 const FirstPaymentFailurePage = () => {
   const bookingInProgress = useRef(false); // Guard to prevent duplicate API calls
   const navigate = useNavigate();
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
 const [transId , setTransId] = useState(null);
 const [amount , setAmount] = useState(null);
 const [mtxnId , setmtxnId] = useState(null);
@@ -273,7 +274,7 @@ const decryptData = (encryptedData, iv, key) => {
 
       console.log(transactionData)
 
-      const response = await fetch("https://cabapi.payplatter.in/api/transactions", {
+      const response = await fetch(`${DOMAIN}/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transactionData),
@@ -347,7 +348,7 @@ const decryptData = (encryptedData, iv, key) => {
 console.log(payload)
     try {
       // Make PUT API call
-      const response = await fetch(`https://cabapi.payplatter.in/api/bookings/${payload.bookingId}`, {
+      const response = await fetch(`${DOMAIN}/api/bookings/${payload.bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
