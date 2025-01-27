@@ -191,8 +191,8 @@ const privateKey = process.env.REACT_APP_PRIVATE_KEY;
 const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
 
 // URLs without txnId
-const successURL = process.env.REACT_APP_SUCCESS_URL_NO_TXN_ID || process.env.REACT_APP_SUCCESS_URL;
-const failureURL = process.env.REACT_APP_FAILURE_URL_NO_TXN_ID || process.env.REACT_APP_FAILURE_URL;
+const successURL = process.env.REACT_APP_FINAL_SUCCESS_URL;
+const failureURL = process.env.REACT_APP_FINAL_FAILURE_URL;
 
 console.log("RouterDomain:", RouterDomain);
 console.log("Success URL:", successURL);
