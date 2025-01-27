@@ -173,14 +173,31 @@ const PassengersDetails = () => {
       // const successURL = "http://localhost:3000/finalpaymentsuccess";
       // const failureURL = "http://localhost:3000/finalpaymentfailure";
 
-      const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
-      const merchantCode = "JHA434";
-      const username = "MJHANS434";
-      const password = "[C@1ba15716";
-      const privateKey = "7R7WkmrgZilbokoB";
-      const privateValue = "x8mYTSawyBGpM9iq";
-      const successURL = "https://cab.payplatter.in/finalpaymentsuccess";
-      const failureURL = "https://cab.payplatter.in/finalpaymentfailure";
+      // const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
+      // const merchantCode = "JHA434";
+      // const username = "MJHANS434";
+      // const password = "[C@1ba15716";
+      // const privateKey = "7R7WkmrgZilbokoB";
+      // const privateValue = "x8mYTSawyBGpM9iq";
+      // const successURL = "https://cab.payplatter.in/finalpaymentsuccess";
+      // const failureURL = "https://cab.payplatter.in/finalpaymentfailure";
+
+
+      const RouterDomain = process.env.REACT_APP_ROUTER_DOMAIN;
+const merchantCode = process.env.REACT_APP_MERCHANT_CODE;
+const username = process.env.REACT_APP_USERNAME;
+const password = process.env.REACT_APP_PASSWORD;
+const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+
+// URLs without txnId
+const successURL = process.env.REACT_APP_SUCCESS_URL_NO_TXN_ID || process.env.REACT_APP_SUCCESS_URL;
+const failureURL = process.env.REACT_APP_FAILURE_URL_NO_TXN_ID || process.env.REACT_APP_FAILURE_URL;
+
+console.log("RouterDomain:", RouterDomain);
+console.log("Success URL:", successURL);
+console.log("Failure URL:", failureURL);
+
 
       // Payment Details
       const txnId = `txn_${Date.now()}`; // Unique transaction ID

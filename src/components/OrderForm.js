@@ -297,19 +297,27 @@ const OrderForm = () => {
     const rideId = `${day}${month}${year}${seconds}${randomDigits}`;
 
 
+    const RouterDomain = process.env.REACT_APP_ROUTER_DOMAIN;
+    const merchantCode = process.env.REACT_APP_MERCHANT_CODE;
+    const username = process.env.REACT_APP_USERNAME;
+    const password = process.env.REACT_APP_PASSWORD;
+    const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+    const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+    const successURL = `${process.env.REACT_APP_SUCCESS_URL}${txnId}`;
+    const failureURL = `${process.env.REACT_APP_FAILURE_URL}${txnId}`;
+    
+    console.log("RouterDomain:", RouterDomain); // Debugging purpose
+    
 
 
-
-    const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
-    const merchantCode = "JHA434";
-    const username = "MJHANS434";
-    const password = "[C@1ba15716";
-    const privateKey = "7R7WkmrgZilbokoB";
-    const privateValue = "x8mYTSawyBGpM9iq";
-    // const privateKey = "3md6uPicmLlZmlVG";
-    // const privateValue = "xVJSbcqImp2utNzi";
-    const successURL = `https://cab.payplatter.in/payment-success?txnId=${txnId}`;
-    const failureURL = `https://cab.payplatter.in/payment-failure?txnId=${txnId}`;
+    // const RouterDomain = "https://bookings.smartcityjhansi.com/Router/initiateTransaction";
+    // const merchantCode = "JHA434";
+    // const username = "MJHANS434";
+    // const password = "[C@1ba15716";
+    // const privateKey = "7R7WkmrgZilbokoB";
+    // const privateValue = "x8mYTSawyBGpM9iq";
+    // const successURL = `https://cab.payplatter.in/payment-success?txnId=${txnId}`;
+    // const failureURL = `https://cab.payplatter.in/payment-failure?txnId=${txnId}`;
 
     // const RouterDomain =
     //   "https://test.payplatter.in/Router/initiateTransaction";
