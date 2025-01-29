@@ -169,6 +169,7 @@ console.log(DOMAIN);
         }
       );
 
+      console.log(createResponse)
       if (!createResponse.ok) {
         throw new Error("Failed to create user");
       }
@@ -188,6 +189,7 @@ console.log(DOMAIN);
         user_id: userId,
         status: "Pending",
       };
+      console.log(bookingData)
 
       // Call createBooking and store the result
       const bookingResponse = await createBooking(bookingData);
@@ -297,9 +299,29 @@ console.log(DOMAIN);
     const day = String(now.getDate()).padStart(2, "0");
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
     const seconds = String(now.getSeconds()).padStart(2, "0");
     const randomDigits = Math.floor(Math.random() * 90 + 10); // Two-digit random number
-    const rideId = `${day}${month}${year}${seconds}${randomDigits}`;
+    const randomId = `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
+console.log(randomId)
+    // Store randomId in sessionStorage
+    sessionStorage.setItem("randomId", randomId);
+
+    // API call to update randomId for the given bookingId
+    try {
+        await fetch(`${DOMAIN}/api/bookings/random-id/${bookingId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ randomId })
+        });
+        console.log("Random ID updated successfully in DB:", randomId);
+    } catch (error) {
+        console.error("Error updating random ID:", error);
+    }
+
 
 
     const RouterDomain = process.env.REACT_APP_ROUTER_DOMAIN;
@@ -350,7 +372,7 @@ console.log(DOMAIN);
     // Construct payment query
     let query = `?mcode=${merchantCode}&uname=${username}&psw=${password}&amount=${paymentAmount.toFixed(
       2
-    )}&mtxnId=${txnId}&pfname=${cabName}&surl=${successURL}&furl=${failureURL}`;
+    )}&mtxnId=${randomId}&pfname=${cabName}&surl=${successURL}&furl=${failureURL}`;
 
     // Encrypt the query
     const encryptedQuery = encryptData(query, privateValue, privateKey).replace(
@@ -363,6 +385,7 @@ console.log(DOMAIN);
     console.log("Redirecting to Payment URL:", paymentUrl);
 
     // Save minimal data to sessionStorage for use after payment
+    sessionStorage.setItem("bookingId", bookingId);
     sessionStorage.setItem("txnId", txnId);
     sessionStorage.setItem("cabId", selectedCar?.car_id);
     sessionStorage.setItem("driverId", selectedCar?.assigned_driver_id);

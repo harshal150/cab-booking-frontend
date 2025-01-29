@@ -330,14 +330,16 @@ console.log(privateValue)
     const txn_id = queryParams.get("transId");
     const status = queryParams.get("status") || "Failed";
     const amount = parseFloat(queryParams.get("requestedAmount"));
-    const bookingId = queryParams.get("mtxnId");
+    // const bookingId = queryParams.get("mtxnId");
+    const randomId = queryParams.get("mtxnId");  // Replace bookingId with randomId
+
 
 
     // pgTransId=null&transId=230125890311&amount=null&requestedAmount=25.0&mtxnId=362&firstName=Tata Tiago EV-UP93CT5232&
     // lastName=null&payInstrument=null&email=&contact=&respCode=0999&mcode=JHA434&txnDate=23-01-2025 14:25:12&
     // status=pending&rmsg=RC_EAZYPAY_E00335&udf1=null&udf2=null&udf3=null&udf4=null&udf5=null&udf6=null&udf7=nul
 
-    if (!txn_id || !amount || !bookingId) {
+    if (!txn_id || !amount || !randomId) {
       console.error("Incomplete booking details detected.");
       alert("Booking details are incomplete. Please try again.");
       bookingInProgress.current = false;
@@ -349,16 +351,17 @@ console.log(privateValue)
       txn_id,
       status,
       amount,
-      bookingId,
+      randomId,
     };
 console.log(payload)
     try {
       // Make PUT API call
-      const response = await fetch(`${DOMAIN}/api/bookings/${payload.bookingId}`, {
+      const response = await fetch(`${DOMAIN}/api/bookings/update-booking/${randomId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      });
+    });
+    
 
       if (!response.ok) {
         throw new Error("Failed to update booking with failed status.");
