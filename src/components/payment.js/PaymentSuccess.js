@@ -20,16 +20,33 @@ const PaymentSuccess = () => {
 
 
 
-  const decryptData = (encryptedData, iv, key) => {
+const decryptData = (encryptedData, iv, key) => {
+  try {
+    // Ensure key is exactly 16 bytes
     const keyBytes = CryptoJS.enc.Utf8.parse(key.padEnd(16, "0").slice(0, 16));
-    const ivBytes = CryptoJS.enc.Utf8.parse(iv);
-    const decrypted = CryptoJS.AES.decrypt(encryptedData, keyBytes, {
-      iv: ivBytes,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-    return decrypted.toString(CryptoJS.enc.Utf8);
-  };
+    const ivBytes = CryptoJS.enc.Utf8.parse(iv.padEnd(16, "0").slice(0, 16));
+
+    // Ensure encrypted data is Base64 decoded
+    const encryptedHexStr = CryptoJS.enc.Base64.parse(encryptedData);
+    const decrypted = CryptoJS.AES.decrypt(
+      { ciphertext: encryptedHexStr },
+      keyBytes,
+      {
+        iv: ivBytes,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      }
+    );
+
+    const result = decrypted.toString(CryptoJS.enc.Utf8);
+    if (!result) throw new Error("Decryption resulted in an empty string.");
+    return result;
+  } catch (error) {
+    console.error("Decryption Error:", error.message);
+    return null;
+  }
+};
+
 
 
 
@@ -37,12 +54,15 @@ const PaymentSuccess = () => {
   useEffect(() => {
     // Step 1: Extract encrypted query from URL
     const encryptedQuery = new URLSearchParams(window.location.search).get("query");
-
     if (!encryptedQuery) {
       console.error("No query parameter found in URL.");
       return;
     }
-console.log(encryptedQuery)
+    
+    // Decode URI Component before decryption
+    const decodedQuery = decodeURIComponent(encryptedQuery);
+    console.log("Decoded Query:", decodedQuery);
+    
     // Step 2: Define decryption keys (must match the encryption process)
     // const privateKey = "Wq0F6lS7A5tIJU90"; // Replace with your actual private key
     // const privateValue = "lo4syhqHnRjm4L0T"; // Replace with your actual private value
@@ -50,8 +70,13 @@ console.log(encryptedQuery)
     // const privateKey = "7R7WkmrgZilbokoB";
     // const privateValue = "x8mYTSawyBGpM9iq";
 
-    const privateKey ="3md6uPicmLlZmlVG";
-    const privateValue ="xVJSbcqImp2utNzi";
+    // const privateKey ="Wq0F6lS7A5tIJU90";
+    // const privateValue ="lo4syhqHnRjm4L0T";
+
+    const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+console.log(privateKey)
+console.log(privateValue)
 
     try {
       // Step 3: Decrypt the query
@@ -90,23 +115,33 @@ console.log(encryptedQuery)
   useEffect(() => {
     const fetchAndHandlePaymentSuccess = async () => {
       try {
-        // Step 1: Extract encrypted query from URL
+        // Step 1: Extract and decode query
         const encryptedQuery = new URLSearchParams(window.location.search).get("query");
         if (!encryptedQuery) {
           console.error("No query parameter found in URL.");
           return;
         }
   
-        console.log(encryptedQuery);
+        console.log("Encrypted Query from URL:", encryptedQuery);
+        const decodedQuery = decodeURIComponent(encryptedQuery);
+        console.log("Decoded Query:", decodedQuery);
   
-        // Step 2: Define decryption keys
-        const privateKey = "3md6uPicmLlZmlVG";
-        const privateValue = "xVJSbcqImp2utNzi";
+        // Step 2: Ensure private keys are available
+        const privateKey = process.env.REACT_APP_PRIVATE_KEY || "YOUR_HARD_CODED_KEY";
+        const privateValue = process.env.REACT_APP_PRIVATE_VALUE || "YOUR_HARD_CODED_IV";
   
-        // Step 3: Decrypt the query
-        const decryptedQuery = decryptData(encryptedQuery, privateValue, privateKey);
-        console.log(decryptedQuery);
+        console.log("Using Key:", privateKey);
+        console.log("Using IV:", privateValue);
   
+        // Step 3: Decrypt
+        const decryptedQuery = decryptData(decodedQuery, privateValue, privateKey);
+        if (!decryptedQuery) {
+          throw new Error("Decryption failed. Check key and IV.");
+        }
+  
+        console.log("Decrypted Query:", decryptedQuery);
+  
+        // Step 4: Parse the query parameters
         const queryParams = new URLSearchParams(decryptedQuery);
         const txn_id = queryParams.get("transId");
         const status = queryParams.get("status") || "pending";
@@ -121,15 +156,17 @@ console.log(encryptedQuery)
           return;
         }
   
-        // Call the handlePaymentSuccess function
+        // Step 5: Handle payment success
         await handlePaymentSuccess({ txn_id, status, amount, bookingId });
+  
       } catch (error) {
-        console.error("Failed to decrypt query:", error);
+        console.error("Failed to process payment:", error.message);
       }
     };
   
     fetchAndHandlePaymentSuccess();
   }, []);
+  
   
 
 

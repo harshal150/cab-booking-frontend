@@ -36,8 +36,13 @@ const FinalPaymentSuccess = () => {
       // const privateValue = "x8mYTSawyBGpM9iq";
 
       
-    const privateKey ="3md6uPicmLlZmlVG";
-    const privateValue ="xVJSbcqImp2utNzi";
+    // const privateKey ="3md6uPicmLlZmlVG";
+    // const privateValue ="xVJSbcqImp2utNzi";
+
+    
+    const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+
 
       let decryptedQuery = null;
       try {
