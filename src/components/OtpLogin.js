@@ -165,7 +165,7 @@ const OTPLogin = ({ onClose, mobileNumber, setMobileNumber }) => {
       // Generate a random 4-digit OTP
       const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
       const smsMessage = `OTP to login JSCL Mobile App is ${generatedOtp}`;
-  console.log(generatedOtp)
+  console.log("otp = " ,generatedOtp)
       // Store the OTP locally for verification later
       localStorage.setItem("generatedOtp", generatedOtp);
   

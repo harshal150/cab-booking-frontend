@@ -26,10 +26,59 @@ const PassengersDetails = () => {
   const otpRefs = useRef([]);
   const mobileNumber = sessionStorage.getItem("mobileNumber");
 
-  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;
-  useEffect(() => {
-    fetchMyRides(); // Initial load of bookings
+  const DOMAIN = CONFIG.REACT_APP_API_DOMAIN;useEffect(() => {
+    fetchMyRides(); // Fetch rides from API on load
+  
+    const storedRideStatus = {};
+    const storedStartReading = {};
+    const storedRide = localStorage.getItem("currentRide");
+  
+    if (storedRide) {
+      const parsedRide = JSON.parse(storedRide);
+      setBookings([parsedRide]); // Keep ride visible
+  
+      // ✅ Restore ride status
+      if (localStorage.getItem(`rideStatus_${parsedRide.id}`) === "rideStarted") {
+        storedRideStatus[parsedRide.id] = "rideStarted";
+      } else {
+        storedRideStatus[parsedRide.id] = "notStarted";
+      }
+  
+      // ✅ Restore start reading
+      const startReadingValue = localStorage.getItem(`startReading_${parsedRide.id}`);
+      if (startReadingValue) {
+        storedStartReading[parsedRide.id] = startReadingValue;
+      }
+    }
+  
+    if (storedRide) setBookings([JSON.parse(storedRide)]);
+    setRideStatus(storedRideStatus);
+    setStartReading(storedStartReading);
   }, []);
+  
+  
+  
+  
+  
+  
+
+
+  useEffect(() => {
+    const mobileNumber = sessionStorage.getItem("updatedmobilenumber");
+    if (mobileNumber) {
+      fetchMyRides(); // ✅ Fetch rides after login
+    }
+  }, []);
+  
+  
+  
+
+  // useEffect(() => {
+  //   const mobileNumber = sessionStorage.getItem("updatedmobilenumber");
+  //   if (mobileNumber) {
+  //     fetchMyRides(); // ✅ Fetch rides after login
+  //   }
+  // }, []);
   
 
 //   useEffect(() => {
@@ -82,6 +131,9 @@ const PassengersDetails = () => {
       alert("Please enter the start reading!");
       return;
     }
+
+    localStorage.setItem(`startReading_${id}`, startReading[id]);
+
     setRideStatus((prev) => ({ ...prev, [id]: "startReadingDone" }));
   };
 
@@ -98,8 +150,14 @@ const PassengersDetails = () => {
     const distance = parseInt(endReading[id]) - parseInt(startReading[id]); // Calculate distance
     const fare = distance * rate; // Calculate fare
 
+
     setTotalFare((prev) => ({ ...prev, [id]: fare })); // Update only for this booking
     setRideStatus((prev) => ({ ...prev, [id]: "endReadingDone" })); // Update only for this booking
+
+
+      // ✅ Keep start reading & end reading fields visible
+  localStorage.setItem(`endReading_${id}`, endReading[id]);
+  localStorage.setItem(`fare_${id}`, fare);
   };
 
   // Handles OTP submission for starting or ending a ride
@@ -107,12 +165,8 @@ const PassengersDetails = () => {
     const otp = rideOtp[id]; // Get OTP for this booking
     const storedOtp =
       type === "start"
-        ? localStorage.getItem(
-            `otp_${bookings.find((b) => b.id === id).driver_mobile_no}`
-          )
-        : localStorage.getItem(
-            `end_otp_${bookings.find((b) => b.id === id).driver_mobile_no}`
-          );
+        ? localStorage.getItem(`otp_${bookings.find((b) => b.id === id).driver_mobile_no}`)
+        : localStorage.getItem(`end_otp_${bookings.find((b) => b.id === id).driver_mobile_no}`);
 
     if (!otp || otp.length !== 4 || isNaN(otp)) {
       alert("Please enter a valid 4-digit OTP!");
@@ -122,17 +176,24 @@ const PassengersDetails = () => {
     if (otp === storedOtp) {
       if (type === "start") {
         alert(`OTP verified! Starting the ride.`);
+
+        // Persist ride status in LocalStorage
+        localStorage.setItem(`rideStatus_${id}`, "rideStarted");
+
         setRideStatus((prev) => ({ ...prev, [id]: "rideStarted" }));
-        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP for this booking
+        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP
       } else if (type === "end") {
         alert(`OTP verified! Ending the ride.`);
+        localStorage.setItem(`rideStatus_${id}`, "rideEnded");
+
         setRideStatus((prev) => ({ ...prev, [id]: "rideEnded" }));
-        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP for this booking
+        setRideOtp((prev) => ({ ...prev, [id]: "" })); // Reset OTP
       }
     } else {
       alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
     }
-  };
+};
+
 
   const navigate = useNavigate();
 
@@ -151,16 +212,33 @@ const PassengersDetails = () => {
 
 
 
-    const calculatedAmount = calculatedNewAmount;
+    const startReadingValue = parseInt(localStorage.getItem(`startReading_${booking.id}`)) || 0;
+    const endReadingValue = parseInt(localStorage.getItem(`endReading_${booking.id}`)) || 0;
+    
+    if (endReadingValue <= startReadingValue) {
+      alert("End reading must be greater than start reading!");
+      return;
+    }
+    
+    // Calculate distance traveled
+    const distance = endReadingValue - startReadingValue;
+    const ratePerKm = 10; // Fixed rate per KM
+    
+    // ✅ Calculate total fare correctly
+    const calculatedAmount = distance * ratePerKm;
+    setTotalFare((prev) => ({ ...prev, [booking.id]: calculatedAmount }));
+    
+    // Retrieve stored ride ID
     const rideId = localStorage.getItem("rideId");
-
-    console.log(calculatedAmount)
-    console.log(rideId)
-
+    
+    console.log("Total Calculated Fare:", calculatedAmount);
+    console.log("Ride ID:", rideId);
+    
     if (!calculatedAmount || !rideId) {
       alert("Required payment details not found. Please try again.");
       return;
     }
+    
     try {
       // Constants
       // const RouterDomain =
@@ -418,27 +496,36 @@ console.log(mobileNumber)
 
 
 
-  const generateRandomNumber = () => {
-    // Get the current date
-    const now = new Date();
 
-    // Format date as DDMMYY
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
 
-    // Get seconds
-    const seconds = String(now.getSeconds()).padStart(2, "0");
 
-    // Generate a random 2-digit number
-    const randomDigits = Math.floor(Math.random() * 90 + 10); // Ensures two digits (10-99)
+  
+  useEffect(() => {
+    const generateRandomNumber = () => {
+      // Get the current date
+      const now = new Date();
+  
+      // Format date as DDMMYY
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+  
+      // Get seconds
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+  
+      // Generate a random 2-digit number
+      const randomDigits = Math.floor(Math.random() * 90 + 10); // Ensures two digits (10-99)
+  
+      // Combine all parts
+      const generatedNumber = `${day}${month}${year}${seconds}${randomDigits}`;
+  
+      // Update state with the generated number
+      setRandomNumber(generatedNumber);
+    };
+    generateRandomNumber();
 
-    // Combine all parts
-    const generatedNumber = `${day}${month}${year}${seconds}${randomDigits}`;
-
-    // Update state with the generated number
-    setRandomNumber(generatedNumber);
-  };
+  }, []);
+  
 
 
 
@@ -459,7 +546,7 @@ console.log(mobileNumber)
         (booking) =>
           booking.user_mobile_no === mobileNumber &&
           booking.status === "success" &&
-          booking.ride_status === "not started"
+          (booking.ride_status === "not started" || booking.ride_status === "running") // ✅ Include "running"
       );
   
       setBookings(filteredBookings);
@@ -672,70 +759,37 @@ console.log(mobileNumber)
   End Ride
 </button> */}
 
-
 <button
   disabled={rideStatus[booking.id] !== "rideStarted"}
   onClick={async () => {
     try {
-      // Fetch all transactions
-      const response = await axios.get(`${DOMAIN}/api/transactions`)
-
-      if (response.status === 200) {
-        const transactions = response.data; // Array of all transactions
-        console.log("All Transactions:", transactions); // Debug log for all transactions
-
-        // Find the transaction matching the current booking ID
-        const matchingTransaction = transactions.find(
-          (transaction) => transaction.booking_id === booking.booking_id
-        );
-
-        if (matchingTransaction) {
-          console.log("Matching Transaction:", matchingTransaction);
-          localStorage.setItem(
-            "transactiongetid",
-            matchingTransaction.id
-          );
-
-          localStorage.setItem(
-            "CalculatedAmount",
-            matchingTransaction.calculated_amount
-          );
-
-          // Update state with the transaction ID
-          setTransactionId(matchingTransaction.id);
-
-          console.log(
-            "Transaction ID stored in state and localStorage:",
-            matchingTransaction.id
-          );
-        } else {
-          console.warn("No matching transaction found for the current booking.");
-        }
-      } else {
-        console.warn("Failed to fetch transactions. Please try again.");
-      }
-
-      // Call the API to update the booking status as "ended"
-      const bookingUpdateResponse = await axios.put(
+      // ✅ Update ride status to "ended" in the backend
+      const response = await axios.put(
         `${DOMAIN}/api/bookings/update/${booking.booking_id}`,
         { ride_status: "ended" }
       );
 
-      if (bookingUpdateResponse.status === 200) {
-        console.log("Booking status updated to 'ended'");
-        alert("Ride has ended successfully!");
-      } else {
-        console.warn("Failed to update booking status. Please try again.");
-      }
+      if (response.status === 200) {
+        console.log("Ride status updated to 'ended'");
+        alert("Ride status updated to 'ended'. Now enter End Reading.");
 
-      // Update ride status locally
-      setRideStatus((prev) => ({
-        ...prev,
-        [booking.id]: "end",
-      }));
+        // ✅ Store status in localStorage so it persists
+        localStorage.setItem(`rideStatus_${booking.id}`, "end");
+
+        // ✅ Ensure start reading remains visible
+        localStorage.setItem(`startReading_${booking.id}`, startReading[booking.id]);
+
+        // ✅ Update state to prompt for End Reading input
+        setRideStatus((prev) => ({
+          ...prev,
+          [booking.id]: "end",
+        }));
+      } else {
+        console.warn("Failed to update ride status.");
+      }
     } catch (error) {
-      console.error("Error during 'End Ride' process:", error);
-      alert("An error occurred while processing 'End Ride'. Please try again.");
+      console.error("Error updating ride status:", error);
+      alert("An error occurred. Please try again.");
     }
   }}
   className={`flex-1 px-3 py-2 text-sm text-white rounded-md shadow-md transition ${
@@ -746,6 +800,11 @@ console.log(mobileNumber)
 >
   End Ride
 </button>
+
+
+
+
+
 
 
                     </div>
@@ -886,71 +945,58 @@ console.log(mobileNumber)
                               />
                             ))}
 
-
-
                             <button
   onClick={async () => {
     try {
       const otp = rideOtp[booking.id]; // User-entered OTP
-      const storedOtp = localStorage.getItem(
-        `otp_${booking.driver_mobile_no}`
-      ); // Retrieve stored OTP from localStorage
+      const storedOtp = localStorage.getItem(`otp_${booking.driver_mobile_no}`);
 
-      // Validate the entered OTP
+      // ✅ Validate OTP
       if (!otp || otp.length !== 4 || isNaN(otp)) {
         alert("Please enter a valid 4-digit OTP!");
         return;
       }
-
       if (otp !== storedOtp) {
         alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
         return;
       }
 
-      const cabId = booking.cab_id; // Extract cab ID from booking data
+      const cabId = booking.cab_id;
+      const rideId = randomNumber;
+      localStorage.setItem("rideId",rideId );
 
-      // Generate random ride_id
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2, "0");
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      const randomDigits = Math.floor(Math.random() * 90 + 10); // Two-digit random number
-      const rideId = `${day}${month}${year}${seconds}${randomDigits}`;
 
-      // Make API call to update cab status
+      // ✅ Update cab status
       const response = await axios.put(
         `${DOMAIN}/api/cars/${cabId}`,
         {
-          ride_status: "started",
+          ride_status: "running",
           status: "not available",
         }
       );
 
       if (response.status === 200) {
-        // Call the API to update the transaction table
+        // ✅ Call API to update the transaction table
         const transactionResponse = await axios.post(
           `${DOMAIN}/api/transactions`,
           {
-            created_date: new Date().toISOString().split("T")[0], // Current date
-            user_id: booking.user_id, // Replace with actual user ID
-            booking_id: booking.booking_id, // Current booking ID
-            start_reading: startReading[booking.id], // Meter start reading value
-            ride_id: rideId, // Randomly generated ride ID
+            created_date: new Date().toISOString().split("T")[0],
+            user_id: booking.user_id,
+            booking_id: booking.booking_id,
+            start_reading: startReading[booking.id],
+            ride_id: rideId,
           }
         );
-        localStorage.setItem(
-                "rideId", rideId
-              );
-
-    console.log("storednewid" ,rideId )
 
         if (transactionResponse.status === 201) {
           alert("Transaction updated successfully!");
-          console.log("Transaction Data:", transactionResponse.data);
 
-          // Handle OTP submission logic
-          alert("OTP verified! Starting the ride.");
+          // ✅ Store ride status in `localStorage`
+          localStorage.setItem(`rideStatus_${booking.id}`, "rideStarted");
+          localStorage.setItem("rideId", rideId);
+          localStorage.setItem("currentRide", JSON.stringify(booking));
+
+          // ✅ Enable "End Ride" button
           setRideStatus((prev) => ({
             ...prev,
             [booking.id]: "rideStarted",
@@ -958,7 +1004,7 @@ console.log(mobileNumber)
           setRideOtp((prev) => ({
             ...prev,
             [booking.id]: "",
-          })); // Reset OTP
+          }));
         } else {
           alert("Failed to update the transaction. Please try again.");
         }
@@ -972,6 +1018,12 @@ console.log(mobileNumber)
 >
   Submit OTP
 </button>
+
+
+
+
+
+
 
 
 
@@ -1038,292 +1090,228 @@ console.log(mobileNumber)
                         </div>
                       </div>
                     )}
+
+
+                 
                     {/* Message */}
                     {rideStatus[booking.id] === "rideStarted" && (
                       <div className="mt-4">
                         <p className="text-green-500 font-semibold">
                           Your ride has started!!
                         </p>
-                        <p className="text-gray-700 font-semibold mt-3">
-                          Start Reading:{" "}
-                          {startReading[booking.id] || "Not provided"}
-                        </p>
+                      {/* Start Reading always visible */}
+<p className="text-gray-700 font-semibold mt-3">
+  Start Reading:{" "}
+  <span className="font-bold">
+    {localStorage.getItem(`startReading_${booking.id}`) || "Not provided"}
+  </span>
+</p>
+
                       </div>
                     )}
 
                     {/* End Reading */}
-                    {(rideStatus[booking.id] === "end" ||
-                      rideStatus[booking.id] === "endReadingDone") && (
-                      <div>
-                        <p className="text-gray-700 font-semibold mt-3 mb-5">
-                          Start Reading:{" "}
-                          <span className="font-bold">
-                            {startReading[booking.id] || "Not provided"}
-                          </span>
-                        </p>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
-                          Enter End Reading:
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
-                            placeholder="Enter End Reading"
-                            value={endReading[booking.id] || ""}
-                            onChange={(e) =>
-                              setEndReading((prev) => ({
-                                ...prev,
-                                [booking.id]: e.target.value,
-                              }))
-                            }
-                          />
+  {/* End Reading Input */}
+{/* Show Enter End Reading Field only when status is "end" */}
 
-                          <button
-                            onClick={async () => {
-                              try {
-                                const otp = Math.floor(
-                                  1000 + Math.random() * 9000
-                                ); // Generate OTP
-                                await sendEndOtp(
-                                  booking.driver_name,
-                                  booking.driver_mobile_no,
-                                  endReading[booking.id],
-                                  otp
-                                );
-                                handleEndReadingSubmit(booking.id, rate); // Call existing function
-                              } catch (error) {
-                                console.error(
-                                  "Error handling End Reading:",
-                                  error
-                                );
-                              }
-                            }}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                          >
-                            Go
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {rideStatus[booking.id] === "endReadingDone" && (
-                      <div className="mt-4">
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
-                          Enter OTP:
-                        </label>
-                        <div className="flex items-center gap-2 mt-2">
-                          {Array(4)
-                            .fill("")
-                            .map((_, index) => (
-                              <input
-                                key={index}
-                                type="text"
-                                maxLength="1"
-                                className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
-                                ref={(el) => (otpRefs.current[index] = el)} // Add ref for each input
-                                value={rideOtp[booking.id]?.[index] || ""}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  if (/^\d?$/.test(value)) {
-                                    // Allow only one digit
-                                    const otpArray = rideOtp[booking.id]?.split(
-                                      ""
-                                    ) || ["", "", "", ""];
-                                    otpArray[index] = value;
-                                    setRideOtp((prev) => ({
-                                      ...prev,
-                                      [booking.id]: otpArray.join(""),
-                                    }));
-                                    // Move focus to the next box
-                                    if (value && index < 3) {
-                                      otpRefs.current[index + 1].focus();
-                                    }
-                                  }
-                                }}
-                                onKeyDown={(e) => {
-                                  // Handle backspace to go to the previous box
-                                  if (
-                                    e.key === "Backspace" &&
-                                    !e.target.value &&
-                                    index > 0
-                                  ) {
-                                    otpRefs.current[index - 1].focus();
-                                  }
-                                }}
-                              />
-                            ))}
+{/* Show Enter End Reading Field */}
+{rideStatus[booking.id] === "end" ||
+rideStatus[booking.id] === "endReadingDone" ? (
+
+  
+  <div>
 
 
-
-                          {/* <button
-                            onClick={async () => {
-                              try {
-                                const otp = rideOtp[booking.id]; // User-entered OTP
-                                const storedOtp = localStorage.getItem(
-                                  `end_otp_${booking.driver_mobile_no}`
-                                ); // Retrieve stored OTP
-
-                                // Validate the entered OTP
-                                if (!otp || otp.length !== 4 || isNaN(otp)) {
-                                  alert("Please enter a valid 4-digit OTP!");
-                                  return;
-                                }
-
-                                if (otp !== storedOtp) {
-                                  alert(
-                                    "Incorrect OTP. Please enter the correct 4-digit OTP!"
-                                  );
-                                  return;
-                                }
-
-                                const cabId = booking.cab_id; // Extract cab ID from booking data
-
-                                // Make API call to update cab status
-                                const response = await axios.put(
-                                  `${DOMAIN}/api/cars/${cabId}`,
-                                  {
-                                    ride_status: "ended",
-                                    status: "available",
-                                  }
-                                );
-
-                                if (response.status === 200) {
-                                  // Handle OTP submission logic
-                                  alert("OTP verified! Ending the ride.");
-                                  setRideStatus((prev) => ({
-                                    ...prev,
-                                    [booking.id]: "rideEnded",
-                                  }));
-                                  setRideOtp((prev) => ({
-                                    ...prev,
-                                    [booking.id]: "",
-                                  })); // Reset OTP
-                                }
-                              } catch (error) {
-                                console.error(
-                                  "Error updating ride status:",
-                                  error
-                                );
-                                alert(
-                                  "Failed to end the ride. Please try again."
-                                );
-                              }
-                            }}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                          >
-                            Submit OTP
-                          </button> */}
-
-                          <button
-  onClick={async () => {
-    try {
-      const otp = rideOtp[booking.id]; // User-entered OTP
-      const storedOtp = localStorage.getItem(
-        `end_otp_${booking.driver_mobile_no}`
-      ); // Retrieve stored OTP
-
-      // Validate the entered OTP
-      if (!otp || otp.length !== 4 || isNaN(otp)) {
-        alert("Please enter a valid 4-digit OTP!");
-        return;
-      }
-
-      if (otp !== storedOtp) {
-        alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
-        return;
-      }
-
-      const cabId = booking.cab_id; // Extract cab ID from booking data
-
-      // Make API call to update cab status
-      const response = await axios.put(
-        `${DOMAIN}/api/cars/${cabId}`,
-        {
-          ride_status: "ended",
-          status: "available",
+    <label className="block mb-2 text-sm font-medium text-gray-600">
+      Enter End Reading:
+    </label>
+    <div className="flex gap-2">
+      <input
+        type="number"
+        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
+        placeholder="Enter End Reading"
+        value={endReading[booking.id] || ""}
+        onChange={(e) =>
+          setEndReading((prev) => ({
+            ...prev,
+            [booking.id]: e.target.value,
+          }))
         }
-      );
+      />
 
-      if (response.status === 200) {
-        // Update transaction data
-        const transactionId = localStorage.getItem("transactiongetid"); // Retrieve stored transaction ID
-        if (!transactionId) {
-          alert("Transaction ID not found. Please try again.");
-          return;
-        }
+      <button
+        onClick={async () => {
+          try {
+            const otp = Math.floor(1000 + Math.random() * 9000); // Generate OTP
+            await sendEndOtp(
+              booking.driver_name,
+              booking.driver_mobile_no,
+              endReading[booking.id],
+              otp
+            );
 
-        const startReadingValue = startReading[booking.id]; // Start reading value
-        const endReadingValue = endReading[booking.id]; // End reading value
+            // ✅ Store end reading in LocalStorage
+            localStorage.setItem(`endReading_${booking.id}`, endReading[booking.id]);
 
-        if (!endReadingValue || parseInt(endReadingValue) <= parseInt(startReadingValue)) {
-          alert("End reading must be greater than start reading!");
-          return;
-        }
-
-        const readingDifference = parseInt(endReadingValue) - parseInt(startReadingValue);
-        console.log("reading difference", readingDifference);
-        const rate = 10; // Fixed rate
-        const calculatedAmount = readingDifference * rate;
-        setcalculatedNewAmount(calculatedAmount)
-        console.log("Calculated amount", calculatedAmount);
-        console.log("transactionId ", transactionId);
-        console.log("readingDifference ", readingDifference);
-        console.log("end_reading ", endReadingValue);
-            
-
-        const transactionUpdateResponse = await axios.put(
-          `${DOMAIN}/api/transactions/${transactionId}`,
-          {
-            end_reading: endReadingValue,
-            reading_difference: readingDifference,
-            rate: rate,
-            calculated_amount: calculatedAmount,
+            // ✅ Allow both End Reading & OTP to be visible
+            setRideStatus((prev) => ({
+              ...prev,
+              [booking.id]: "endReadingDone",
+            }));
+          } catch (error) {
+            console.error("Error handling End Reading:", error);
           }
-        );
-
-        if (transactionUpdateResponse.status === 200) {
-          alert("Transaction updated successfully!");
-          console.log("Updated Transaction Data:", transactionUpdateResponse.data);
-        } else {
-          console.warn("Failed to update the transaction. Please try again.");
-        }
-
-        // Handle OTP submission logic
-        alert("OTP verified! Ending the ride.");
-        setRideStatus((prev) => ({
-          ...prev,
-          [booking.id]: "rideEnded",
-        }));
-        setRideOtp((prev) => ({
-          ...prev,
-          [booking.id]: "",
-        })); // Reset OTP
-      }
-    } catch (error) {
-      console.error("Error updating ride or transaction:", error);
-     console.log("hiiii")
-    }
-  }}
-  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
->
-  Submit OTP
-</button>
+        }}
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+      >
+        Go
+      </button>
+    </div>
+  </div>
+) : null}
 
 
-                        </div>
-                      </div>
-                    )}
+
+{/* Show OTP Input only after End Reading is submitted */}
+{/* Show OTP Input After End Reading */}
+{rideStatus[booking.id] === "endReadingDone" && (
+  <div className="mt-4">
+    <label className="block mb-2 text-sm font-medium text-gray-600">
+      Enter OTP:
+    </label>
+    <div className="flex items-center gap-2 mt-2">
+      {Array(4)
+        .fill("")
+        .map((_, index) => (
+          <input
+            key={index}
+            type="text"
+            maxLength="1"
+            className="w-12 h-12 text-center border rounded-md focus:ring-2 focus:ring-blue-400 text-lg font-normal"
+            ref={(el) => (otpRefs.current[index] = el)}
+            value={rideOtp[booking.id]?.[index] || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d?$/.test(value)) {
+                const otpArray = rideOtp[booking.id]?.split("") || ["", "", "", ""];
+                otpArray[index] = value;
+                setRideOtp((prev) => ({
+                  ...prev,
+                  [booking.id]: otpArray.join(""),
+                }));
+                if (value && index < 3) {
+                  otpRefs.current[index + 1].focus();
+                }
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Backspace" && !e.target.value && index > 0) {
+                otpRefs.current[index - 1].focus();
+              }
+            }}
+          />
+        ))}
+
+      <button
+        onClick={async () => {
+          try {
+            const otp = rideOtp[booking.id];
+            const storedOtp = localStorage.getItem(
+              `end_otp_${booking.driver_mobile_no}`
+            );
+
+            if (!otp || otp.length !== 4 || isNaN(otp)) {
+              alert("Please enter a valid 4-digit OTP!");
+              return;
+            }
+            if (otp !== storedOtp) {
+              alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
+              return;
+            }
+
+            const startReadingValue = localStorage.getItem(`startReading_${booking.id}`);
+            const endReadingValue = localStorage.getItem(`endReading_${booking.id}`);
+
+            if (!endReadingValue || parseInt(endReadingValue) <= parseInt(startReadingValue)) {
+              alert("End reading must be greater than start reading!");
+              return;
+            }
+
+            const readingDifference = parseInt(endReadingValue) - parseInt(startReadingValue);
+            const rate = 10;
+            const calculatedAmount = readingDifference * rate;
+
+            // ✅ Store the final calculated fare
+            localStorage.setItem(`fare_${booking.id}`, calculatedAmount);
+
+            alert(`OTP verified! Fare: ₹${calculatedAmount}`);
+
+            // ✅ Keep OTP field visible even after submission
+            setRideOtp((prev) => ({
+              ...prev,
+              [booking.id]: "",
+            }));
+
+            setRideStatus((prev) => ({
+              ...prev,
+              [booking.id]: "rideEnded",
+            }));
+
+
+          } catch (error) {
+            console.error("Error updating ride or transaction:", error);
+          }
+        }}
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+      >
+        Submit OTP
+      </button>
+    </div>
+  </div>
+)}
+
+
+
 
                     {rideStatus[booking.id] === "rideEnded" && (
-                      <p className="mt-4 text-red-500 font-semibold">
+
+
+                    <>
+                    <div className="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-md mt-3">
+  <p className="text-gray-700 font-semibold">
+    Start Reading: <span className="text-blue-600 font-bold">
+      {localStorage.getItem(`startReading_${booking.id}`) || "Not provided"}
+    </span>
+  </p>
+
+  <p className="text-gray-700 font-semibold">
+    End Reading: <span className="text-red-600 font-bold">
+      {localStorage.getItem(`endReading_${booking.id}`) || "Not provided"}
+    </span>
+  </p>
+</div>
+  <p className="mt-4 text-red-500 font-semibold">
                         Ride ended successfully!
                       </p>
-                    )}
+                    </>
+)}
+
+
+
+                      
+                    
+              
                     {rideStatus[booking.id] === "rideEnded" && (
                       <>
                         <div className="mt-4 flex items-center justify-between">
-                          <p className="text-red-500 font-semibold">
-                            Total Fare: ₹{totalFare[booking.id]}
-                          </p>
+
+  <p className="mt-4 text-red-500 font-semibold">
+    Total Fare: ₹{localStorage.getItem(`fare_${booking.id}`) || "0"}
+  
+  </p>
+  
+
+
                           <button
                             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
                             onClick={() => handlePayment(booking)}

@@ -203,7 +203,7 @@ const Navbar = () => {
     try {
       const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
       const smsMessage = `OTP to login JSCL Mobile App is ${generatedOtp}`;
-      console.log(generatedOtp);
+      console.log("otp = " ,generatedOtp);
 
       localStorage.setItem("generatedOtp", generatedOtp);
       sessionStorage.setItem("updatedmobilenumber", mobileNumber);
