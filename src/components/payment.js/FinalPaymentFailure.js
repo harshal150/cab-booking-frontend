@@ -62,8 +62,8 @@ const FinalPaymentFailure = () => {
     // const privateValue ="xVJSbcqImp2utNzi";
 
     
-    const privateKey = process.env.REACT_APP_PRIVATE_KEY;
-const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+    const privateKey = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEKEY_KEY;
+    const privateValue = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEVALUE_KEY;
 
       try {
         // Decrypt the query
