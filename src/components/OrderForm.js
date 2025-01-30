@@ -22,6 +22,8 @@ console.log(DOMAIN);
 
   const [filteredCars, setFilteredCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState(null); // To manage selected car details
+  console.log(selectedCar);
+  
   const [isModalOpen, setIsModalOpen] = useState(false); // To manage modal visibility
   const [isOtpLoginOpen, setIsOtpLoginOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // Confirmation box visibility
@@ -70,6 +72,8 @@ console.log(DOMAIN);
 
   // Open OTP Login Modal
   const openOtpLogin = (car) => {
+  console.log(car);
+   
     setSelectedCar(car); // Set the selected car, which includes all car and driver details
     setIsOtpLoginOpen(true); // Open the OTP Login modal
   };
@@ -179,13 +183,14 @@ console.log(DOMAIN);
       const userId = createdUser?.userId;
 
       console.log("User created id:", userId);
-
+      console.log(selectedCar?.assigned_driver_id);
+      
       // Prepare booking data
       const bookingData = {
         booking_date: formData.date,
         booking_time: formData.timing,
-        cab_id: selectedCar.car_id,
-        driver_id: selectedCar.assigned_driver_id,
+        cab_id: selectedCar?.car_id,
+        driver_id: selectedCar?.assigned_driver_id,
         user_id: userId,
         status: "Pending",
       };
