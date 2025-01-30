@@ -69,8 +69,8 @@ const PaymentSuccess = () => {
     // const privateKey ="Wq0F6lS7A5tIJU90";
     // const privateValue ="lo4syhqHnRjm4L0T";
 
-    const privateKey = process.env.REACT_APP_PRIVATE_KEY;
-    const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
+    const privateKey = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEKEY_KEY;
+    const privateValue = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEVALUE_KEY;
     console.log(privateKey);
     console.log(privateValue);
 
