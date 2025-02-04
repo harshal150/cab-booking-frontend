@@ -126,11 +126,13 @@ const PaymentSuccess = () => {
         const decodedQuery = decodeURIComponent(encryptedQuery);
         console.log("Decoded Query:", decodedQuery);
 
-        // Step 2: Ensure private keys are available
-        const privateKey =
-          process.env.REACT_APP_PRIVATE_KEY || "YOUR_HARD_CODED_KEY";
-        const privateValue =
-          process.env.REACT_APP_PRIVATE_VALUE || "YOUR_HARD_CODED_IV";
+
+
+
+          
+    const privateKey = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEKEY_KEY;
+    const privateValue = process.env.REACT_APP_PRIVATE_VALUE_PRIVATEVALUE_KEY;
+
 
         console.log("Using Key:", privateKey);
         console.log("Using IV:", privateValue);
