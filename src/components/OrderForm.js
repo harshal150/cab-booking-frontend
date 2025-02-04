@@ -883,6 +883,7 @@ console.log(randomId)
                             num_passengers: value,
                           }));
                         }}
+                        min="1"
                         max="4"
                         className="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-[#78B3CE] focus:outline-none shadow-sm"
                       />
