@@ -330,8 +330,8 @@ console.log(randomId)
     const password = process.env.REACT_APP_PASSWORD;
     const privateKey = process.env.REACT_APP_PRIVATE_KEY;
     const privateValue = process.env.REACT_APP_PRIVATE_VALUE;
-    const successURL = `${process.env.REACT_APP_SUCCESS_URL}${txnId}`;
-    const failureURL = `${process.env.REACT_APP_FAILURE_URL}${txnId}`;
+    const successURL = `${process.env.REACT_APP_SUCCESS_URL}${randomId}`;
+    const failureURL = `${process.env.REACT_APP_FAILURE_URL}${randomId}`;
     
     console.log("RouterDomain:", RouterDomain); // Debugging purpose
     
@@ -398,7 +398,7 @@ console.log(randomId)
     setTimeout(() => {
       window.location.href = paymentUrl;
       setLoading(false); // Re-enable button after redirection
-    }, 9000); // Simulate delay before redirection
+    }, 20000); // Simulate delay before redirection
   };
 
   // const submitBooking = async () => {
@@ -878,6 +878,7 @@ console.log(randomId)
                             num_passengers: value,
                           }));
                         }}
+                        min="1"
                         max="4"
                         className="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-[#78B3CE] focus:outline-none shadow-sm"
                       />
