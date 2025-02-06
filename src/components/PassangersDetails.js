@@ -1212,60 +1212,109 @@ rideStatus[booking.id] === "endReadingDone" ? (
           />
         ))}
 
-      <button
-        onClick={async () => {
-          try {
-            const otp = rideOtp[booking.id];
-            const storedOtp = localStorage.getItem(
-              `end_otp_${booking.driver_mobile_no}`
-            );
+        <button
+  onClick={async () => {
+    try {
+      const otp = rideOtp[booking.id];
+      const storedOtp = localStorage.getItem(`end_otp_${booking.driver_mobile_no}`);
 
-            if (!otp || otp.length !== 4 || isNaN(otp)) {
-              alert("Please enter a valid 4-digit OTP!");
-              return;
-            }
-            if (otp !== storedOtp) {
-              alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
-              return;
-            }
+      if (!otp || otp.length !== 4 || isNaN(otp)) {
+        alert("Please enter a valid 4-digit OTP!");
+        return;
+      }
+      if (otp !== storedOtp) {
+        alert("Incorrect OTP. Please enter the correct 4-digit OTP!");
+        return;
+      }
 
-            const startReadingValue = localStorage.getItem(`startReading_${booking.id}`);
-            const endReadingValue = localStorage.getItem(`endReading_${booking.id}`);
+      const startReadingValue = localStorage.getItem(`startReading_${booking.id}`);
+      const endReadingValue = localStorage.getItem(`endReading_${booking.id}`);
 
-            if (!endReadingValue || parseInt(endReadingValue) <= parseInt(startReadingValue)) {
-              alert("End reading must be greater than start reading!");
-              return;
-            }
+      if (!endReadingValue || parseInt(endReadingValue) <= parseInt(startReadingValue)) {
+        alert("End reading must be greater than start reading!");
+        return;
+      }
 
-            const readingDifference = parseInt(endReadingValue) - parseInt(startReadingValue);
-            const rate = 10;
-            const calculatedAmount = readingDifference * rate;
+      const readingDifference = parseInt(endReadingValue) - parseInt(startReadingValue);
+      const rate = 10;
+      const calculatedAmount = readingDifference * rate;
 
-            // ✅ Store the final calculated fare
-            localStorage.setItem(`fare_${booking.id}`, calculatedAmount);
+      // ✅ Store the final calculated fare
+      localStorage.setItem(`fare_${booking.id}`, calculatedAmount);
 
-            alert(`OTP verified! Fare: ₹${calculatedAmount}`);
+      // ✅ Get `booking_id` from the booking object
+      const bookingId = booking.booking_id;
 
-            // ✅ Keep OTP field visible even after submission
-            setRideOtp((prev) => ({
-              ...prev,
-              [booking.id]: "",
-            }));
+      if (!bookingId) {
+        alert("Booking ID not found!");
+        return;
+      }
 
-            setRideStatus((prev) => ({
-              ...prev,
-              [booking.id]: "rideEnded",
-            }));
+      // ✅ Fetch All Transactions to Find Matching Booking ID
+      const transactionsResponse = await axios.get(`${DOMAIN}/api/transactions`);
+      const transactions = transactionsResponse.data;
+
+      // ✅ Find Transaction where `booking_id` matches
+      const matchedTransaction = transactions.find(transaction => transaction.booking_id === bookingId);
+
+      if (!matchedTransaction) {
+        alert("No matching transaction found for this booking!");
+        return;
+      }
+
+      const transactionId = matchedTransaction.id; // ✅ Extract transaction ID
+      const bookingId1 = matchedTransaction.id; // ✅ Extract transaction ID
+
+      console.log("Matching Transaction Found:", matchedTransaction);
+      console.log("Updating booking ID:", bookingId1);
+
+      // ✅ Prepare the request payload
+      const requestData = {
+        end_reading: parseInt(endReadingValue),
+        reading_difference: readingDifference,
+        rate: rate,
+        calculated_amount: calculatedAmount
+      };
+
+      // ✅ API Call to Update Transaction
+      const response = await axios.put(
+        `${DOMAIN}/api/transactions/${transactionId}`,
+        requestData
+      );
+
+      if (response.status === 200) {
+        alert(`OTP verified! Fare: ₹${calculatedAmount}. Transaction updated successfully.`);
+        localStorage.setItem(
+                "transactiongetid",
+                bookingId1
+              );
+      } else {
+        alert("Failed to update transaction. Please try again.");
+      }
+
+      // ✅ Keep OTP field visible even after submission
+      setRideOtp((prev) => ({
+        ...prev,
+        [booking.id]: "",
+      }));
+
+      setRideStatus((prev) => ({
+        ...prev,
+        [booking.id]: "rideEnded",
+      }));
+
+    } catch (error) {
+      console.error("Error updating ride or transaction:", error);
+      alert("An error occurred while updating transaction. Please try again.");
+    }
+  }}
+  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+>
+  Submit OTP
+</button>
 
 
-          } catch (error) {
-            console.error("Error updating ride or transaction:", error);
-          }
-        }}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-      >
-        Submit OTP
-      </button>
+
     </div>
   </div>
 )}
