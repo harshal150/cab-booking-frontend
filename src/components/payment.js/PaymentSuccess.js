@@ -205,6 +205,13 @@ const PaymentSuccess = () => {
       const latestBooking = await bookingResponse.json();
 
         console.log("Fetched booking data:", latestBooking);
+
+
+        const formattedDate = latestBooking.booking_date; // Directly use it
+
+        console.log("Corrected Booking Date (Final Fix - No Timezone Shift):", formattedDate);
+
+
         setLatestBooking(latestBooking);
 
         if (!latestBooking) {
@@ -300,6 +307,8 @@ const PaymentSuccess = () => {
         booking_time: rideTime,
         booking_id: bookingId,
       } = booking;
+
+      console.log( "booking_date" , rideDate)
 
       if (!userMobile || !userName || !driverMobile || !driverName) {
         throw new Error("Incomplete data for sending SMS.");
