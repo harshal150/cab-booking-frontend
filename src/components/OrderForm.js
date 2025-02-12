@@ -59,8 +59,11 @@ console.log(DOMAIN);
         rate: `${car.rate_per_km} Rs/km`,
         fixedCharges: car.fixed_charges,
         status:
-          car.availability === "Not Available" ? "Not Available" : "Available",
+          car.availability.toLowerCase() === "not available"
+            ? "Not Available"
+            : "Available",
       }));
+      
 
       setFilteredCars(carsWithImage);
     } catch (error) {
