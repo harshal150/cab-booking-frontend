@@ -971,7 +971,7 @@ console.log(mobileNumber)
         `${DOMAIN}/api/cars/${cabId}`,
         {
           ride_status: "running",
-          status: "not available",
+          status: "available",
         }
       );
 
