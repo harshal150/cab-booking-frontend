@@ -673,7 +673,7 @@ console.log(randomId)
           <div className="font-normal justify-start">
             <p className="font-semibold">Please note the following:</p>
             <ol>
-              <li>1) Cabs Unavailable on Monday</li>
+              <li>1) Cab travel services are available only between 10 AM and 5 PM. Cabs are unavailable on Mondays.</li>
               <li>
                 2) Booking charge is Rs 25/-, which will NOT be adjusted to the
                 total fare at the end of trip. If booking is cancelled, then
